@@ -483,8 +483,8 @@ def handle_arguments() -> argparse.ArgumentParser:
 
     args = parser.parse_args()
 
-    logging.basicConfig(level=logging.WARNING -
-                        args.verbosity * 10, format="%(message)s")
+    logging.basicConfig(level=logging.WARNING - args.verbosity * 10,
+                        format="%(message)s")
 
     return args
 
