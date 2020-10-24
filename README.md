@@ -2,6 +2,11 @@
 
 This module can be used to download and to strip / detach / remove attachments from e-mails on IMAP servers.
 
+![CodeQL](https://github.com/AlexanderWillner/MailboxCleanup/workflows/CodeQL/badge.svg)
+[![Build Status](https://scrutinizer-ci.com/g/AlexanderWillner/MailboxCleanup/badges/build.png?b=main)](https://scrutinizer-ci.com/g/AlexanderWillner/MailboxCleanup/build-status/main)
+[![Code Intelligence Status](https://scrutinizer-ci.com/g/AlexanderWillner/MailboxCleanup/badges/code-intelligence.svg?b=main)](https://scrutinizer-ci.com/code-intelligence)
+
+
 ## Abstract
 
 We all receive dozens and hundreds of new e-mail messages every day. Some of them even contain large attachments. The storage capacity on servers, however, are often limited. Deleting entire e-mails is often not an option, removing single attachments manually is time consuming and storing file locally is not optimal. With this script you can iterate over all e-mails in your inbox or within all folders, download the attachments locally and remove the attachments from the e-mails remotely. The script has been tested with Google Mail and Exchange servers with tens of thousands of e-mails and extracted thousands of attachments / multiple gigabytes in this process. As a result it is now possible to archive e-mails from many, many years on IMAP servers without exceeding mail server space limitations. Contributions and feedback are always welcome.
