@@ -23,6 +23,7 @@ class MyTestCase(unittest.TestCase):
         self.args = Namespace(server='example.org',
                               max_size=20,
                               skip_download = False,
+                              detach = False,
                               target = '/tmp/mailbox_cleaner')
 
     def test_get_tags(self):
