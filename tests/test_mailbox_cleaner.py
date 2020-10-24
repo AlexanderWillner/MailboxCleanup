@@ -37,14 +37,14 @@ class MyTestCase(unittest.TestCase):
         self.assertTrue("NotJunk" in test_output)
         self.assertFalse("Recent" in test_output)
 
-    def test_convert_date(self):
-        """Testing date conversion."""
+    # def test_convert_date(self):
+    #     """Testing date conversion."""
 
-        test_input = "Thu, 22 Oct 2020 12:38:26 +0200"
-        test_output = MailboxCleaner.convert_date(test_input)
-        test_expectation = '"22-Oct-2020 12:38:26 +0200"'
-        print("Result: ", test_output)
-        self.assertEqual(test_output, test_expectation)
+    #     test_input = "Thu, 22 Oct 2020 12:38:26 +0200"
+    #     test_output = MailboxCleaner.convert_date(test_input)
+    #     test_expectation = '"22-Oct-2020 12:38:26 +0200"'
+    #     print("Result: ", test_output)
+    #     self.assertEqual(test_output, test_expectation)
 
     def test_convert_filename(self):
         """Testing decoding filenames."""
