@@ -3,9 +3,10 @@
 This module can be used to download and to strip / detach / remove attachments from e-mails on IMAP servers.
 
 ![CodeQL](https://github.com/AlexanderWillner/MailboxCleanup/workflows/CodeQL/badge.svg)
+[![Build Status](https://travis-ci.org/AlexanderWillner/MailboxCleanup.svg?branch=main)](https://travis-ci.org/AlexanderWillner/MailboxCleanup)
 [![Build Status](https://scrutinizer-ci.com/g/AlexanderWillner/MailboxCleanup/badges/build.png?b=main)](https://scrutinizer-ci.com/g/AlexanderWillner/MailboxCleanup/build-status/main)
 [![Code Intelligence Status](https://scrutinizer-ci.com/g/AlexanderWillner/MailboxCleanup/badges/code-intelligence.svg?b=main)](https://scrutinizer-ci.com/code-intelligence)
-
+[![Coverage Status](https://coveralls.io/repos/github/AlexanderWillner/MailboxCleanup/badge.svg)](https://coveralls.io/github/AlexanderWillner/MailboxCleanup)
 
 ## Abstract
 
