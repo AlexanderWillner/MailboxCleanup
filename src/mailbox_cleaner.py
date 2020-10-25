@@ -55,7 +55,7 @@ This message contained an attachment that was stripped out.
 The filename was: "%(filename)s".
 The size was: %(size)d KB.
 The type was: %(type)s.
-Tool: http://github.com/AlexanderWillner/MailboxCleanup
+Tool: https://github.com/AlexanderWillner/MailboxCleanup
 ===========================================================
 """
 
