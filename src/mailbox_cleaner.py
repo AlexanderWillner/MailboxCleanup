@@ -134,7 +134,7 @@ Tool: https://github.com/AlexanderWillner/MailboxCleanup
 
             msg_subject = self.get_subject(msg)
             msg_uid = msg['message-id'] if 'message-id' in msg else None
-            logging.warning('File\t\t: %s (%s)', filename, msg_subject)
+            logging.warning('    File\t: %s (%s)', filename, msg_subject)
 
             # Check cache
             if msg_uid in self.cache:
@@ -185,7 +185,11 @@ Tool: https://github.com/AlexanderWillner/MailboxCleanup
                     continue
 
                 # Get the actual email
-                msg, msg_flags = self.get_msg_from_server(msg_uid)
+                try:
+                    msg, msg_flags = self.get_msg_from_server(msg_uid)
+                except imaplib.IMAP4.error:
+                    logging.info('  Error\t: Message %s skipped', msg_uid)
+                    continue
                 subject = self.get_subject(msg)
                 logging.info('  Subject\t: %s', subject)
 
@@ -233,7 +237,11 @@ Tool: https://github.com/AlexanderWillner/MailboxCleanup
                 self.imap.uid('STORE', msg_uid, '+X-GM-LABELS', '\\Trash')
             except imaplib.IMAP4.error:
                 pass
-            self.imap.expunge()
+            # Sometimes expunge just fails with an EOF socket error
+            try:
+                self.imap.expunge()
+            except imaplib.IMAP4.abort:
+                pass
         else:
             logging.warning('    Error\t: "%s"', data)
 
