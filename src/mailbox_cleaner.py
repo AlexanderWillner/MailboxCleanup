@@ -120,7 +120,7 @@ Tool: https://github.com/AlexanderWillner/MailboxCleanup
         msg_flags = '\\Seen'
         msg_folder = self.args.folder
         filenames = os.listdir(directory)
-        
+
         for i, filename in enumerate(filenames, start=1):
             logging.warning('Progress\t: %d / %d', i, len(filenames))
             if not filename.lower().endswith(".eml") and\
@@ -129,7 +129,8 @@ Tool: https://github.com/AlexanderWillner/MailboxCleanup
 
             filename = os.path.join(directory, filename)
             with open(filename) as filepointer:
-                if filename.lower().endswith(".emlx"): next(filepointer)
+                if filename.lower().endswith(".emlx"):
+                    next(filepointer)
                 msg = email.message_from_file(filepointer)
 
             msg_subject = self.get_subject(msg)
