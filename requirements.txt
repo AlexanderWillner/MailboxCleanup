@@ -1,4 +1,4 @@
-coverage==5.3
+coverage==4.5.4
 logzero==1.5.0
 pycodestyle==2.6.0
 pyflakes==2.2.0
