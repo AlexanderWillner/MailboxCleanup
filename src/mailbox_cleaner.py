@@ -213,7 +213,7 @@ Tool: http://github.com/AlexanderWillner/MailboxCleanup
         # Sometimes IMAP servers might return empty bodies, so try again
         for _ in range(self.__RETRIES):
             try:
-                result, data = self.imap.uid('fetch', uid, '(RFC822)')
+                result, data = self.imap.uid('fetch', uid, '(BODY.PEEK[])')
                 if data is None or data[0] is None:
                     logging.warning('  Error\t: '
                                     'Could not get a message body. '
