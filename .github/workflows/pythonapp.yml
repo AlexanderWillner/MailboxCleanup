@@ -31,3 +31,8 @@ jobs:
     - name: Run make file
       run: |
         make test code-style code-lint
+    - name: Coveralls
+      env:
+        COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+      run: |
+        coveralls
