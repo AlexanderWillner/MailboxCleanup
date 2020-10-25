@@ -213,7 +213,8 @@ Tool: https://github.com/AlexanderWillner/MailboxCleanup
         # Sometimes IMAP servers might return empty bodies, so try again
         for _ in range(self.__RETRIES):
             try:
-                result, data = self.imap.uid('fetch', uid, '(UID BODY.PEEK[] FLAGS)')
+                result, data = self.imap.uid('fetch', uid,
+                                             '(UID BODY.PEEK[] FLAGS)')
                 if data is None or data[0] is None:
                     logging.warning('  Error\t: '
                                     'Could not get a message body. '
@@ -354,8 +355,8 @@ Tool: https://github.com/AlexanderWillner/MailboxCleanup
         else:
             msg.add_header('Content-Disposition', 'attachment',
                            filename='removed-%s.txt' % msg_filename)
-            msg.add_header('Content-Description', 'removed-%s.txt' % msg_filename)
-
+            msg.add_header('Content-Description',
+                           'removed-%s.txt' % msg_filename)
 
         # Replace content
         msg_details = dict(type=msg_content,
