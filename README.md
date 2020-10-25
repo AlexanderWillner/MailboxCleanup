@@ -48,13 +48,23 @@ optional arguments:
 If you don't want to type your password on the terminal, you can use built-in password managing tools (here an example using the macOS Keychain).
 
 ```shell
-$ ./src/mailbox_cleaner.py --server imap.gmail.com --user user@example.org --password $(security -q find-generic-password -wa googlemailpwd) $@
+$ ./src/mailbox_cleaner.py --server imap.gmail.com --user user@example.org --password $(security -q find-generic-password -wa googlemailpwd)
 Folders (#) : OK (27)
 All Folders : False
 Folder      : Inbox (started)
 Read Only   : True
 Mails (#)   : OK (30)
 Folder      : Inbox (completed)
+```
+
+You can also upload local `eml` files from a directory:
+
+```shell
+$ ./src/mailbox_cleaner.py --server imap.gmail.com --user user@example.org --password $(security -q find-generic-password -wa googlemailpwd) --folder imap_folder --upload my_eml_dir
+Folders (#) : OK (27)
+All Folders : False
+File        : my_eml_dir/test.eml (Test)
+    Success : OK
 ```
 
 ## Open Issues / Planned Enhancements

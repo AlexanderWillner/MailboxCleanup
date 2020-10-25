@@ -72,8 +72,12 @@ Tool: https://github.com/AlexanderWillner/MailboxCleanup
             self.login()
             self.__load_cache()
             folders = self.get_folders_from_server()
-            self.process_folders(folders)
-            self.logout()
+            if self.args.upload:
+                self.process_folder_locally()
+            else:
+                self.process_folders_on_server(folders)
+                self.imap.close()
+            self.imap.logout()
         except KeyboardInterrupt as error:
             raise SystemExit('\nCancelling...') from error
         finally:
@@ -109,13 +113,53 @@ Tool: https://github.com/AlexanderWillner/MailboxCleanup
             raise SystemExit('Login failed (wrong password?): %s' %
                              error) from error
 
-    def logout(self):
-        """Log out of the IMAP server."""
+    def process_folder_locally(self):
+        """Upload messages from a local directory."""
 
-        self.imap.close()
-        self.imap.logout()
+        directory = self.args.upload
+        msg_flags = '\\Seen'
+        msg_folder = self.args.folder
 
-    def process_folders(self, folders):
+        for filename in os.listdir(directory):
+            if not filename.lower().endswith(".eml") and\
+               not filename.lower().endswith(".emlx"):
+                continue
+
+            filename = os.path.join(directory, filename)
+            with open(filename) as filepointer:
+                msg = email.message_from_file(filepointer)
+
+            msg_subject = self.get_subject(msg)
+            msg_uid = msg['message-id'] if 'message-id' in msg else None
+            logging.warning('File\t\t: %s (%s)', filename, msg_subject)
+
+            # Check cache
+            if msg_uid in self.cache:
+                logging.warning('    Cache\t: OK')
+                continue
+
+            # Check for duplicates
+            self.imap.select(msg_folder, readonly=True)
+            status, data = self.imap.uid('SEARCH',
+                                         '(HEADER Message-ID "%s")' % msg_uid)
+            if len(data[0]) > 0:
+                logging.warning('    Duplicate\t: %s', status)
+                self.cache[msg_uid] = msg_subject
+                continue
+
+            # Remove attachments
+            self.download_and_detach_attachments(msg)
+
+            # Upload message
+            status, data = self.upload_msg_to_server(msg, msg_flags,
+                                                     msg_folder)
+            if status == "OK":
+                logging.warning('    Success\t: %s', status)
+                self.cache[msg_uid] = msg_subject
+            else:
+                logging.warning('    Error\t\t: %s', data)
+
+    def process_folders_on_server(self, folders):
         """Iterate over mails in given folders."""
 
         # Iterate over each folder
@@ -147,7 +191,7 @@ Tool: https://github.com/AlexanderWillner/MailboxCleanup
 
                 # Upload new email
                 if modified:
-                    self.upload_msg_to_server(msg, msg_flags, folder, msg_uid)
+                    self.replace_msg_on_server(msg, msg_flags, folder, msg_uid)
 
                 self.cache[msg_uid] = subject
 
@@ -169,7 +213,7 @@ Tool: https://github.com/AlexanderWillner/MailboxCleanup
 
         return modified
 
-    def upload_msg_to_server(self, msg, msg_flags, folder, msg_uid):
+    def replace_msg_on_server(self, msg, msg_flags, folder, msg_uid):
         """Replace old/large message on the server."""
 
         # Only upload in non-readonly mode
@@ -177,13 +221,8 @@ Tool: https://github.com/AlexanderWillner/MailboxCleanup
             logging.debug('    Detaching\t: skipped (read-only mode)')
             return
 
-        # Knowing what's going on
-        msg_date = self.convert_date(msg.get('date'))
-        logging.debug('    Uploading\t: %s / %s', msg_date, msg_flags)
-
         # Upload new message and delete the old one
-        status, data = self.imap.append(
-            folder, msg_flags, msg_date, msg.as_string().encode())
+        status, data = self.upload_msg_to_server(msg, msg_flags, folder)
         if status == 'OK':
             self.imap.uid('STORE', msg_uid, '+FLAGS', '\\Deleted')
             # GMail needs special treatment
@@ -194,6 +233,16 @@ Tool: https://github.com/AlexanderWillner/MailboxCleanup
             self.imap.expunge()
         else:
             logging.warning('    Error\t: "%s"', data)
+
+    def upload_msg_to_server(self, msg, msg_flags, folder):
+        """Upload a message to the server."""
+
+        # Knowing what's going on
+        msg_date = self.convert_date(msg.get('date'))
+        logging.debug('    Uploading\t: %s / %s', msg_date, msg_flags)
+
+        return self.imap.append(
+            folder, msg_flags, msg_date, msg.as_string().encode())
 
     def is_non_detachable_part(self, part):
         """Only process certain types and sizes of attachments."""
@@ -302,21 +351,22 @@ Tool: https://github.com/AlexanderWillner/MailboxCleanup
             payload = part.get_payload(decode=True)
             if payload is not None:
                 file_temp.write(payload)
-                self.copy_file(file_temp.name, file_attached)
+                self.__copy_file(file_temp.name, file_attached)
             else:
                 logging.warning('    Downloading\t: File "%s" was empty',
                                 file_attached)
 
         return True
 
-    def copy_file(self, source, target_name, iterator=0):
+    def __copy_file(self, source, target_name, iterator=0):
         """Copy file, check for duplicates via hash value."""
 
         target_base, target_extension = os.path.splitext(target_name)
         if iterator > 0:
             target_base = target_base + "-" + str(iterator)
         target = os.path.join(self.args.target, target_base + target_extension)
-        logging.debug('    Moving\t: From "%s" to "%s".', source, target)
+        if iterator == 0:
+            logging.debug('    Moving\t: From "%s" to "%s".', source, target)
 
         if not os.path.isfile(target):
             shutil.copy2(source, target)
@@ -324,12 +374,12 @@ Tool: https://github.com/AlexanderWillner/MailboxCleanup
             source_hash = self.get_hash(source)
             target_hash = self.get_hash(target)
             if source_hash != target_hash:
-                logging.debug(
-                    '    Conflict\t: Same file with other hash (%s vs %s).',
-                    source_hash, target_hash)
-                self.copy_file(source, target_name, iterator + 1)
+                if iterator == 0:
+                    logging.debug(
+                        '    Conflict\t: Resolving same file / other hash...')
+                self.__copy_file(source, target_name, iterator + 1)
             else:
-                logging.debug('    Moving\t: Already exists (skipping)')
+                logging.debug('    Moving\t: Already exists (same hash)')
 
     def detach_attachment(self, msg):
         """Replace large attachment with dummy text."""
@@ -469,6 +519,9 @@ def handle_arguments() -> argparse.ArgumentParser:
                         help="max attachment size in KB", default=200)
     parser.add_argument("-f", "--folder",
                         help="imap folder to process", default="Inbox")
+    parser.add_argument("-l", "--upload",
+                        help="local folder with messages to upload")
+
     parser.add_argument("-t", "--target",
                         help="download attachments to this local folder",
                         default="attachments")

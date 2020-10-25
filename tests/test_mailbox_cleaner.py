@@ -37,14 +37,15 @@ class MyTestCase(unittest.TestCase):
         self.assertTrue("NotJunk" in test_output)
         self.assertFalse("Recent" in test_output)
 
-    # def test_convert_date(self):
-    #     """Testing date conversion."""
+    @unittest.skip("set timezone or change comparison first")
+    def test_convert_date(self):
+        """Testing date conversion."""
 
-    #     test_input = "Thu, 22 Oct 2020 12:38:26 +0200"
-    #     test_output = MailboxCleaner.convert_date(test_input)
-    #     test_expectation = '"22-Oct-2020 12:38:26 +0200"'
-    #     print("Result: ", test_output)
-    #     self.assertEqual(test_output, test_expectation)
+        test_input = "Thu, 22 Oct 2020 12:38:26 +0200"
+        test_output = MailboxCleaner.convert_date(test_input)
+        test_expectation = '"22-Oct-2020 12:38:26 +0200"'
+        print("Result: ", test_output)
+        self.assertEqual(test_output, test_expectation)
 
     def test_convert_filename(self):
         """Testing decoding filenames."""
@@ -77,6 +78,21 @@ class MyTestCase(unittest.TestCase):
         self.assertTrue(test_expectation in msg.as_string())
         modified = cleaner.download_and_detach_attachments(msg)
         self.assertFalse(modified)
+
+    @unittest.skip("local testing only, as uploading to server")
+    def test_upload_msg_to_server(self):
+        """Testing local eml file upload."""
+
+        cleaner = MailboxCleaner(self.args)
+        cleaner.login()
+        test_input = 'tests/test.eml'
+        msg_flags = '\\Seen'
+        msg_folder = 'TEST'
+        with open(test_input) as filepointer:
+            msg = email.message_from_file(filepointer)
+
+        status = cleaner.upload_msg_to_server(msg, msg_flags, msg_folder)
+        self.assertEqual(status, 'OK')
 
 
 if __name__ == '__main__':
