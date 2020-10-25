@@ -213,7 +213,7 @@ Tool: https://github.com/AlexanderWillner/MailboxCleanup
         # Sometimes IMAP servers might return empty bodies, so try again
         for _ in range(self.__RETRIES):
             try:
-                result, data = self.imap.uid('fetch', uid, '(BODY.PEEK[])')
+                result, data = self.imap.uid('fetch', uid, '(UID BODY.PEEK[] FLAGS)')
                 if data is None or data[0] is None:
                     logging.warning('  Error\t: '
                                     'Could not get a message body. '
@@ -227,6 +227,8 @@ Tool: https://github.com/AlexanderWillner/MailboxCleanup
 
                 msg = self.get_mail_from_struct(data)
                 msg_flags = self.get_flags_from_struct(data)
+
+                logging.debug('  Flags\t\t: %s', msg_flags)
 
                 return (msg, msg_flags)
             except imaplib.IMAP4.error:
@@ -340,6 +342,7 @@ Tool: https://github.com/AlexanderWillner/MailboxCleanup
         # Remove some old headers
         del msg['Content-Transfer-Encoding']
         del msg['Content-Disposition']
+        del msg['Content-Description']
         for k, _v in msg.get_params()[1:]:
             msg.del_param(k)
 
@@ -351,6 +354,8 @@ Tool: https://github.com/AlexanderWillner/MailboxCleanup
         else:
             msg.add_header('Content-Disposition', 'attachment',
                            filename='removed-%s.txt' % msg_filename)
+            msg.add_header('Content-Description', 'removed-%s.txt' % msg_filename)
+
 
         # Replace content
         msg_details = dict(type=msg_content,
