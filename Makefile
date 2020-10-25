@@ -72,4 +72,4 @@ deps-create:
 	@pipreqs --use-local --force .
 
 feedback:
-	@open https://github.com/AlexanderWillner/attachment-downloader/issues
+	@open https://github.com/AlexanderWillner/MailboxCleanup/issues
