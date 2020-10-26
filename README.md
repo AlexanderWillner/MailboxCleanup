@@ -16,27 +16,30 @@ We all receive dozens and hundreds of new e-mail messages every day. Some of the
 
 ## Usage
 
-You can run the command via `./src/mailbox_cleaner.py`.
+You can run the command via `./bin/mailbox_cleaner`.
 
 ```shell
-$ ./src/mailbox_cleaner.py --help
-usage: mailbox_cleaner.py [-h] [-a] [-d] [-k] [-r] [-m MAX_SIZE] [-f FOLDER] [-t TARGET] -s SERVER -u USER -p PASSWORD [-v] [--version]
+$ ./bin/mailbox_cleaner --help
+usage: mailbox_cleaner.py [-h] [-a] [-d] [-k] [-r] [-m MAX_SIZE] [-f FOLDER] [-l UPLOAD] [-t TARGET] -s SERVER -u USER [-o PORT] -p PASSWORD [-v] [--version]
 
 optional arguments:
   -h, --help            show this help message and exit
   -a, --all             iterate over all folders
-  -d, --detach          remove attachments from server
+  -d, --detach          remove attachments
   -k, --skip-download   download attachments
   -r, --reset-cache     reset cache
   -m MAX_SIZE, --max-size MAX_SIZE
                         max attachment size in KB
   -f FOLDER, --folder FOLDER
                         imap folder to process
+  -l UPLOAD, --upload UPLOAD
+                        local folder with messages to upload
   -t TARGET, --target TARGET
                         download attachments to this local folder
   -s SERVER, --server SERVER
                         imap server
   -u USER, --user USER  imap user
+  -o PORT, --port PORT  imap port
   -p PASSWORD, --password PASSWORD
                         imap user
   -v, --verbose         be more verbose (-v, -vv)
@@ -48,7 +51,7 @@ optional arguments:
 If you don't want to type your password on the terminal, you can use built-in password managing tools (here an example using the macOS Keychain).
 
 ```shell
-$ ./src/mailbox_cleaner.py --server imap.gmail.com --user user@example.org --password $(security -q find-generic-password -wa googlemailpwd)
+$ ./bin/mailbox_cleaner --server imap.gmail.com --user user@example.org --password $(security -q find-generic-password -wa googlemailpwd)
 Folders (#) : OK (27)
 All Folders : False
 Folder      : Inbox (started)
@@ -57,10 +60,10 @@ Mails (#)   : OK (30)
 Folder      : Inbox (completed)
 ```
 
-You can also upload local `eml` files from a directory:
+You can also remove attachments from local `eml` files from a directory and upload them:
 
 ```shell
-$ ./src/mailbox_cleaner.py --server imap.gmail.com --user user@example.org --password $(security -q find-generic-password -wa googlemailpwd) --folder imap_folder --upload my_eml_dir
+$ ./bin/mailbox_cleaner --server imap.gmail.com --user user@example.org --password $(security -q find-generic-password -wa googlemailpwd) --folder imap_folder --upload my_eml_dir
 Folders (#) : OK (27)
 All Folders : False
 File        : my_eml_dir/test.eml (Test)
