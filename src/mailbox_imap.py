@@ -189,7 +189,6 @@ class MailboxCleanerIMAP():
 
         # Check cache
         msg_uid = self.message.get_uid(msg)
-        print(msg_uid)
         if msg_uid in self.cache:
             logging.warning('    Cache\t: OK')
             return ('Cached', '')
