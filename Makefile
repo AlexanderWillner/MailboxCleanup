@@ -21,11 +21,11 @@ help:
 	@echo " * feedback     - Create a GitHub issue."
 
 run:
-	@$(PYTHON) $(SRC_CORE)/mailbox_cleaner.py --help
+	@$(PYTHON) -m $(SRC_CORE).mailbox_cleaner --help
 
 test:
 	@type coverage >/dev/null 2>&1 || (echo "Run '$(PIP) install coverage' first." >&2 ; exit 1)
-	@coverage run --source . -m $(SRC_TEST).test_mailbox_cleaner
+	@coverage run --source . -m unittest discover
 	@coverage report
 
 doc:
