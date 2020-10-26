@@ -17,9 +17,8 @@ class TestMailboxCleanerIMAP(TestMailboxAbstract, unittest.TestCase):
 
         imap = MailboxCleanerIMAP(self.args)
         with self.assertRaises((ConnectionRefusedError,
-                                SystemExit)) as context:
+                                SystemExit)):
             imap.login()
-        self.assertTrue("wrong server" in context.exception.code)
 
         imap._load_cache()  # pylint: disable=W0212
         imap.cleanup()
