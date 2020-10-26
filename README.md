@@ -6,7 +6,7 @@ This module can be used to download and to strip / detach / remove attachments f
 [![GitHub Build](https://github.com/AlexanderWillner/MailboxCleanup/workflows/Build-Test/badge.svg)](https://github.com/AlexanderWillner/MailboxCleanup/actions?query=workflow%3ABuild-Test)
 [![Travis Build](https://travis-ci.org/AlexanderWillner/MailboxCleanup.svg?branch=main)](https://travis-ci.org/AlexanderWillner/MailboxCleanup)
 [![Scrutinizer Build](https://scrutinizer-ci.com/g/AlexanderWillner/MailboxCleanup/badges/build.png?b=main)](https://scrutinizer-ci.com/g/AlexanderWillner/MailboxCleanup/build-status/main)
-[![Scrutinizer QA](https://scrutinizer-ci.com/g/AlexanderWillner/MailboxCleanup/badges/code-intelligence.svg?b=main)](https://scrutinizer-ci.com/code-intelligence)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/AlexanderWillner/MailboxCleanup/badges/quality-score.png?b=main)](https://scrutinizer-ci.com/g/AlexanderWillner/MailboxCleanup/?branch=main)
 [![Code Inspector QA](https://www.code-inspector.com/project/15204/status/svg)](https://frontend.code-inspector.com/)
 [![Coveralls Coverage](https://coveralls.io/repos/github/AlexanderWillner/MailboxCleanup/badge.svg)](https://coveralls.io/github/AlexanderWillner/MailboxCleanup)
 
