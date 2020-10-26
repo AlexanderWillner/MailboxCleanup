@@ -2,6 +2,7 @@
 
 exclude_lines =
     if __name__ == .__main__.:
+#    logging.
 
 ignore_errors = True
 

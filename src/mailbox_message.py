@@ -86,11 +86,6 @@ Tool: https://github.com/AlexanderWillner/MailboxCleanup
             logging.info('    Downloading\t: skipped (disabled)')
             return True
 
-        if part.get_filename() is None:
-            logging.warning('Warning\t: Could not download attachment '
-                            '(skipping this attachment)')
-            return False
-
         file_attached = self.convert_filename(part.get_filename())
 
         if file_attached == "unknown":
@@ -105,12 +100,8 @@ Tool: https://github.com/AlexanderWillner/MailboxCleanup
                          file_attached, part.get_content_maintype())
             logging.debug('    Downloading\t: To "%s"', file_temp.name)
             payload = part.get_payload(decode=True)
-            if payload is not None:
-                file_temp.write(payload)
-                self._copy_file(file_temp.name, file_attached)
-            else:
-                logging.warning('    Downloading\t: File "%s" was empty',
-                                file_attached)
+            file_temp.write(payload)
+            self._copy_file(file_temp.name, file_attached)
 
         return True
 

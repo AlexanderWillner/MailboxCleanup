@@ -27,6 +27,24 @@ class TestMailboxMessage(TestMailboxAbstract, unittest.TestCase):
         print("Result: ", test_output)
         self.assertEqual(test_output, test_expectation)
 
+    def test_download_attachment(self):
+        """Testing downloading attachments."""
+
+        test_input = 'tests/test.eml'
+
+        with open(test_input) as filepointer:
+            msg = email.message_from_file(filepointer)
+
+        message = MailboxCleanerMessage(self.args)
+        uid = MailboxCleanerMessage.get_uid(msg)
+        expected = 'E280C461-3229-4671-82B5-8F10E6866E9D@server.example.org'
+        self.assertEqual(uid, expected)
+
+        message.download_attachment(msg)
+
+        self.args.skip_download = True
+        message.download_attachment(msg)
+
     def test_detach_attachment(self):
         """Testing detaching attachments."""
 

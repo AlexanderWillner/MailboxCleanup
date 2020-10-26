@@ -74,3 +74,6 @@ deps-create:
 
 feedback:
 	@open https://github.com/AlexanderWillner/MailboxCleanup/issues
+
+commit: test auto-style lint
+	@git status

@@ -6,6 +6,7 @@
 
 import logging
 import unittest
+import tempfile
 
 
 class TestMailboxAbstract(unittest.TestCase):
@@ -17,13 +18,15 @@ class TestMailboxAbstract(unittest.TestCase):
         def __init__(self, **kwargs):
             self.__dict__.update(kwargs)
 
+    _TARGET = tempfile.mkdtemp() + '_'
+
     def setUp(self):
         logging.basicConfig(level=logging.DEBUG)
         self.args = self._Namespace(server='unknown.localhost',
                                     max_size=20,
                                     skip_download=False,
-                                    detach=False,
-                                    target='/tmp/mailbox_cleaner',
+                                    detach=True,
+                                    target=TestMailboxAbstract._TARGET,
                                     upload='tests',
                                     folder='tests',
                                     reset_cache=True)
