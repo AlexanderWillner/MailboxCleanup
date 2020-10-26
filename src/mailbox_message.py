@@ -19,7 +19,7 @@ import re
 import shutil
 import tempfile
 import unicodedata
-
+import emlx
 
 # pylint: disable=R0801
 __author__ = "Alexander Willner"
@@ -143,8 +143,9 @@ Tool: https://github.com/AlexanderWillner/MailboxCleanup
             filename = os.path.join(directory, filename)
             with open(filename) as filepointer:
                 if filename.lower().endswith(".emlx"):
-                    next(filepointer)
-                msg = email.message_from_file(filepointer)
+                    msg = emlx.read(filename)
+                else:
+                    msg = email.message_from_file(filepointer)
                 msg_subject = self.get_subject(msg)
                 logging.warning('    File\t: %s (%s)', filename, msg_subject)
 

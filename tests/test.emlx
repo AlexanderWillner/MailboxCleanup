@@ -1,4 +1,4 @@
-12345
+41216
 Delivered-To: mail@example.org
 Received: by 2002:aaa:9999:0:0:0:0:0 with SMTP id y11csp882853ljh;
         Sat, 24 Oct 2020 00:27:10 -0700 (PDT)
@@ -563,3 +563,17 @@ q6qXoaGHdN4zqOPmnGtbqBB0BmC26his3NB2r1injQtVbpUXsJihJX4gCGggBWZvJxBtrT7RKp1i
 eETUAwrT7w6MJ3hqGyGq44qu016azac5/R0//9k=
 
 --_004_E280C4613228467182B58F10E6866E9Dserverexampleorg_--
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+        <key>color</key>
+        <string>000000</string>
+        <key>conversation-id</key>
+        <integer>167362</integer>
+        <key>date-received</key>
+        <integer>1427820749</integer>
+        <key>flags</key>
+        <integer>8623685761</integer>
+</dict>
+</plist>
