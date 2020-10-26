@@ -100,7 +100,7 @@ class MailboxCleanerIMAP():
         self.imap.select(self.args.folder, readonly=True)
         status, data = self.imap.uid('SEARCH',
                                      '(HEADER Message-ID "%s")' % msg_uid)
-        if data is not None:  # and len(data[0]) > 0:
+        if data is not None and len(data[0]) > 0:
             logging.warning('    Duplicate\t: %s', status)
             self.cache[msg_uid] = self.message.get_subject(msg_uid)
             return True
