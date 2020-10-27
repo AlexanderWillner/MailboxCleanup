@@ -30,7 +30,7 @@ class TestMailboxMessage(TestMailboxAbstract, unittest.TestCase):
     def test_download_attachment(self):
         """Testing downloading attachments."""
 
-        test_input = 'tests/test.eml'
+        test_input = 'tests/input/test.eml'
 
         with open(test_input) as filepointer:
             msg = email.message_from_file(filepointer)
@@ -48,7 +48,7 @@ class TestMailboxMessage(TestMailboxAbstract, unittest.TestCase):
     def test_detach_attachment(self):
         """Testing detaching attachments."""
 
-        test_input = 'tests/test.eml'
+        test_input = 'tests/input/test.eml'
         test_expectation = 'removed-fed00c051c9f991a8a2d19dcadcf5ff3.jpg.txt'
 
         with open(test_input) as filepointer:
@@ -65,10 +65,15 @@ class TestMailboxMessage(TestMailboxAbstract, unittest.TestCase):
     def test_process_folder_locally(self):
         """Testing local eml file processing."""
 
+        self.args.upload = 'tests/input/test.eml'
         cleaner = MailboxCleanerMessage(self.args)
         cleaner.process_directory(self._void)
 
-    def _void(self, param):
+        self.args.upload = 'tests'
+        cleaner = MailboxCleanerMessage(self.args)
+        cleaner.process_directory(self._void)
+
+    def _void(self, _param):
         """Helper function for testing."""
 
 

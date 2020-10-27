@@ -128,24 +128,37 @@ Tool: https://github.com/AlexanderWillner/MailboxCleanup
             else:
                 logging.debug('    Moving\t: Already exists (same hash)')
 
-    def process_directory(self, handler):
+    def process_directory(self, handler, folder=None):
         """Upload messages from a local directory."""
 
-        directory = self.args.upload
-        filenames = os.listdir(directory)
+        source = self.args.upload if folder is None else folder
+        if os.path.isfile(source):
+            filenames = [os.path.dirname(source)]
+        else:
+            filenames = os.listdir(source)
 
         for i, filename in enumerate(filenames, start=1):
-            logging.warning('Progress\t: %d / %d', i, len(filenames))
+            filename = os.path.join(source, filename)
+
+            # Recursive walker
+            if os.path.isdir(filename):
+                self.process_directory(handler, filename)
+
+            # Only take eml files into account
             if not filename.lower().endswith(".eml") and\
                not filename.lower().endswith(".emlx"):
                 continue
 
-            filename = os.path.join(directory, filename)
+            logging.warning('Files\t: %d / %d', i, len(filenames))
+
             with open(filename) as filepointer:
+                # Specific handling of emlx files
                 if filename.lower().endswith(".emlx"):
                     msg = emlx.read(filename)
                 else:
                     msg = email.message_from_file(filepointer)
+
+                # Logging
                 msg_subject = self.get_subject(msg)
                 logging.warning('    File\t: %s (%s)', filename, msg_subject)
 
