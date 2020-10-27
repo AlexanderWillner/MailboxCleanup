@@ -2,12 +2,8 @@
 
 exclude_lines =
     if __name__ == .__main__.:
-#    logging.
 
 ignore_errors = True
 
 omit = 
-#    src/mailbox_imap.py
-    src/mailbox_cleaner.py
-    tests/*
     */__init__.py
