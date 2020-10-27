@@ -5,6 +5,8 @@
 
 
 import unittest
+import sys
+from unittest.mock import patch
 from src import mailbox_cleaner
 from tests.test_mailbox_abstract import TestMailboxAbstract
 
@@ -19,6 +21,13 @@ class TestMailboxCleaner(TestMailboxAbstract, unittest.TestCase):
             mailbox_cleaner.main()
 
         self.assertEqual(code.exception.code, 2)
+
+        testargs = ["prog", "-s localhost", "-u test", "-p test"]
+        with patch.object(sys, 'argv', testargs):
+            with self.assertRaises(SystemExit) as code:
+                mailbox_cleaner.main()
+
+            self.assertTrue("Errno 8" in code.exception.code)
 
 
 if __name__ == '__main__':
