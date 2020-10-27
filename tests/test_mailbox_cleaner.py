@@ -26,9 +26,7 @@ class TestMailboxCleaner(TestMailboxAbstract, unittest.TestCase):
         with patch.object(sys, 'argv', testargs):
             with self.assertRaises(SystemExit) as code:
                 mailbox_cleaner.main()
-            print(code.exception)
-            print(code.exception.code)
-            self.assertTrue("Errno 8" in code.exception.code)
+            self.assertTrue("wrong server?" in code.exception.code)
 
 
 if __name__ == '__main__':
