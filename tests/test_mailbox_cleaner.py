@@ -22,7 +22,7 @@ class TestMailboxCleaner(TestMailboxAbstract, unittest.TestCase):
 
         self.assertEqual(code.exception.code, 2)
 
-        testargs = ["prog", "-s localhost", "-u test", "-p test"]
+        testargs = ["prog", "-s unknown.localhost", "-u test", "-p test"]
         with patch.object(sys, 'argv', testargs):
             with self.assertRaises(SystemExit) as code:
                 mailbox_cleaner.main()
