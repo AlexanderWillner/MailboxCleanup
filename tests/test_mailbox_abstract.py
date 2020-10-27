@@ -23,6 +23,9 @@ class TestMailboxAbstract(unittest.TestCase):
     def setUp(self):
         logging.basicConfig(level=logging.DEBUG)
         self.args = self._Namespace(server='unknown.localhost',
+                                    user='test',
+                                    password='test',
+                                    all=True,
                                     max_size=20,
                                     skip_download=False,
                                     detach=True,

@@ -51,7 +51,7 @@ class MailboxCleanerIMAP():
                        'Trash', '"Deleted', 'Tasks',
                        '"[Gmail]"')
 
-    def __init__(self, args):
+    def __init__(self, args, imap=None):
         """Initialize class."""
 
         self.args = args
@@ -59,7 +59,7 @@ class MailboxCleanerIMAP():
         self.message = MailboxCleanerMessage(args)
         self.cache = collections.OrderedDict()
         self.cache_file = args.server + '_cache.pkl'
-        self.imap: imaplib.IMAP4_SSL = None
+        self.imap: imaplib.IMAP4_SSL = imap
 
     def cleanup(self):
         """Cleanup after error."""
@@ -70,7 +70,8 @@ class MailboxCleanerIMAP():
         """Log into the IMAP server."""
 
         try:
-            self.imap = imaplib.IMAP4_SSL(self.args.server)
+            if self.imap is None:
+                self.imap = imaplib.IMAP4_SSL(self.args.server)
             self.imap.login(self.args.user, self.args.password)
             self._load_cache()
         except socket.gaierror as error:
