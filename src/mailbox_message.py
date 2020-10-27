@@ -19,7 +19,7 @@ import re
 import shutil
 import tempfile
 import unicodedata
-import emlx
+import src.emlx2eml
 
 # pylint: disable=R0801
 __author__ = "Alexander Willner"
@@ -154,7 +154,7 @@ Tool: https://github.com/AlexanderWillner/MailboxCleanup
             with open(filename) as filepointer:
                 # Specific handling of emlx files
                 if filename.lower().endswith(".emlx"):
-                    msg = emlx.read(filename)
+                    msg = src.emlx2eml.parse_emlx(filename)
                 else:
                     msg = email.message_from_file(filepointer)
 

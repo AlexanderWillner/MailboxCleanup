@@ -1,0 +1,70 @@
+30003
+Delivered-To: mail@example.org
+Received: by 2002:aaa:9999:0:0:0:0:0 with SMTP id y11csp882853ljh;
+        Sat, 24 Oct 2020 00:27:10 -0700 (PDT)
+X-Received: by 2002:aaa:cccc:: with SMTP id c6mr6345658wrf.405.1603324560020;
+        Sat, 24 Oct 2020 00:27:10 -0700 (PDT)
+Return-Path: <me@example.org>
+Received: from smtpsrv2.server.example.org ([195.37.77.176]) by mx-relay55-hz1.antispameurope.com;
+ Sat, 24 Oct 2020 09:27:09 +0200
+From: "Last, First" <me@example.org>
+To: "Dr. First Last" <mail@example.org>
+Subject: Test2
+Thread-Topic: Test
+Thread-Index: AQHWqdcDFWYqdFebBUWJvw5bJZINgA==
+Date: Sat, 24 Oct 2020 07:26:57 +0000
+Message-ID: <F280C461-3229-4671-82B5-8F10E6866E9D@server.example.org>
+Accept-Language: en-US, de-DE
+Content-Language: de-DE
+Content-Type: multipart/related;
+	boundary="----=_Part_25816_1308188977.1600081800427"
+MIME-Version: 1.0
+
+------=_Part_25816_1308188977.1600081800427
+Content-Disposition: inline
+Content-Type: text/html;
+	charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<html>
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dus-ascii"=
+>
+</head>
+<body style=3D"word-wrap: break-word; -webkit-nbsp-mode: space; line-break:=
+ after-white-space;" class=3D"">
+<div class=3D""><b class=3D"">HTML&nbsp;</b>email with attached image.</div=
+>
+<div class=3D""><br class=3D"">
+</div>
+<img apple-inline=3D"no" id=3D"223BFAFE-D8FE-4793-9492-4B60FACFE61B" src=3D=
+"cid:C0F30F60-A554-48C5-B568-4F7454727175@lan" class=3D"">
+</body>
+</html>
+
+------=_Part_25816_1308188977.1600081800427
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+	filename=page-icon.jpg
+Content-Type: image/jpeg;
+	name=page-icon.jpg
+X-Apple-Content-Length: 28187
+Content-Id: <page-icon>
+
+------=_Part_25816_1308188977.1600081800427--
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>conversation-id</key>
+	<integer>542375</integer>
+	<key>date-last-viewed</key>
+	<integer>0</integer>
+	<key>date-received</key>
+	<integer>1600081806</integer>
+	<key>flags</key>
+	<integer>8590135297</integer>
+	<key>remote-id</key>
+	<string>AAMkAGRlZmQ0MzA2LTc0ZGItNDAzNy04ZDg3LTc3NDQyMWEwYjVlYgBGAAAAAACeLEngphJBRaQ5RPq5z1ptBwBtJhqNhb/vQJ5WPXERnksWAAAA+rVSAACARPOPnCbEQ6lZC/xZZYc6AAA+6O3VAAA=</string>
+</dict>
+</plist>
