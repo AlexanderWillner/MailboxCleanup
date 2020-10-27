@@ -86,12 +86,12 @@ class MailboxCleanerIMAP():
 
         try:
             self.imap.close()
-        except imaplib.IMAP4.error:
+        except (AttributeError, imaplib.IMAP4.error):
             pass
 
         try:
             self.imap.logout()
-        except imaplib.IMAP4.error:
+        except (AttributeError, imaplib.IMAP4.error):
             pass
 
     def does_msg_exist(self, msg) -> bool:

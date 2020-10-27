@@ -15,6 +15,7 @@ class TestMailboxCleanerIMAP(TestMailboxAbstract, unittest.TestCase):
     """Class documentation goes here."""
     class _ImapMockup():
         def __init__(self):
+            self.store = []
             test_input = 'tests/input/test.eml'
             with open(test_input) as filepointer:
                 self.msg = email.message_from_file(filepointer)
@@ -45,9 +46,9 @@ class TestMailboxCleanerIMAP(TestMailboxAbstract, unittest.TestCase):
             """Mocking select."""
             return ('OK', readonly)
 
-        @staticmethod
-        def append(_folder, _flags, _date, _msg):
+        def append(self, _folder, _flags, _date, msg):
             """Mocking append."""
+            self.store.append(msg)
             return ('OK', None)
 
         @staticmethod
@@ -59,14 +60,17 @@ class TestMailboxCleanerIMAP(TestMailboxAbstract, unittest.TestCase):
             return ('OK',
                     folders)
 
-        def uid(self, command, _a=None, _b=None, _c=None):
+        def uid(self, command, _a=None, query=None, _c=None):
             """Mocking uid."""
             result = 'OK'
-            if command == 'search':
-                data = [b'142627 142632 142633 142640 142641']
-            elif command == 'fetch':
+            if command.lower() == 'search':
+                if len(self.store) > 0 or query == "ALL":
+                    data = [b'142627 142632 142633 142640 142641']
+                else:
+                    data = [b'']
+            elif command.lower() == 'fetch':
                 data = [(b'10 (UID 142684 BODY[] {2617453}',
-                        self.msg.as_bytes()),
+                         self.msg.as_bytes()),
                         b' FLAGS (\\Seen \\Recent))']
             else:
                 data = None
