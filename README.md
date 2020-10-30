@@ -1,6 +1,6 @@
-# Download and Remove Attachments from E-Mails
+# Remove Attachments from E-Mails
 
-This module can be used to download and to strip / detach / remove attachments from e-mails on IMAP servers.
+This module can be used to strip / detach / remove attachments from e-mails on IMAP servers. This includes downloading attachments, removing them on the server and uploading stripped from from local archives.
 
 ![GitHub CodeQL](https://github.com/AlexanderWillner/MailboxCleanup/workflows/CodeQL/badge.svg)
 [![GitHub Build](https://github.com/AlexanderWillner/MailboxCleanup/workflows/Build-Test/badge.svg)](https://github.com/AlexanderWillner/MailboxCleanup/actions?query=workflow%3ABuild-Test)
@@ -49,11 +49,12 @@ optional arguments:
 
 Some useful tips:
 
-- Using the password from a keychain: If you don't want to type your password on the terminal, you can use built-in password managing tools (here an example using the macOS Keychain): `--password $(security -q find-generic-password -wa googlemailpwd)`.
-- Enable debug and read-only mode: To make sure nothing changes on your server while you're testing, use the flag `--read-only` and enabled the debug mode via `-vvv` to understand what is happening.
-- Download large attachments: By default, the application just downloads large attachments to the folder `attachments` and you might want to do this with all your mails using `--all`.
-- Remove large attachments from server: To safe space on the mail server, you might want to remove mail attachments from the server: `$ ./bin/mailbox_cleaner --detach`.
-- Upload messages to the server: You might have a large archive of mails (`eml`, `emlx` and `partial.emlx` files) that you want to detach the large attachements from and then upload the small text parts: `$ ./bin/mailbox_cleaner  --upload path/to/archive --folder import`.
+- Using the password from a keychain - If you don't want to type your password on the terminal, you can use built-in password managing tools (here an example using the macOS Keychain): `--password $(security -q find-generic-password -wa googlemailpwd)`.
+- Enable debug and read-only mode - To make sure nothing changes on your server while you're testing, use the flag `--read-only` and enabled the debug mode via `-vvv` to understand what is happening.
+- Download large attachments - By default, the application just downloads large attachments to the folder `attachments` and you might want to do this with all your mails using `--all`.
+- Remove large attachments from server - To safe space on the mail server, you might want to remove mail attachments from the server: `--detach`.
+- Upload messages to the server - You might have a large archive of mails (`eml`, `emlx` and `partial.emlx` files) that you want to detach the large attachements from and then upload the small text parts to a given folder: `--upload path/to/archive --folder import`.
+- Working with GMail - If you experience unexpected behaviour when working on a Google Mail server: set `Auto-Expunge off - Wait for the client to update the server` and `Immediately delete the message forever` (or `Move the message to the Trash`) in the GMail settings.
 
 ### Example
 
