@@ -38,7 +38,7 @@ class TestMailboxMessage(TestMailboxAbstract, unittest.TestCase):
 
         message = MailboxCleanerMessage(self.args)
         uid = MailboxCleanerMessage.get_uid(msg)
-        expected = 'E280C461-3229-4671-82B5-8F10E6866E9D@server.example.org'
+        expected = 'E280C461-3229-4671-82B5-8F10E6866E9B@server.example.org'
         self.assertEqual(uid, expected)
 
         message.download_attachment(msg, time.time())
