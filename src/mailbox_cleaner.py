@@ -39,7 +39,8 @@ def handle_arguments() -> argparse.ArgumentParser:
     parser.add_argument("-r", "--reset-cache",
                         help="reset cache", action='store_true')
     parser.add_argument("-m", "--max-size",
-                        help="max attachment size in KB", default=200)
+                        help="max attachment size in KB", default=200,
+                        type=int)
     parser.add_argument("-f", "--folder",
                         help="imap folder to process", default="Inbox")
     parser.add_argument("-l", "--upload",
@@ -50,7 +51,8 @@ def handle_arguments() -> argparse.ArgumentParser:
                         default="attachments")
     parser.add_argument("-s", "--server", help="imap server", required=True)
     parser.add_argument("-u", "--user", help="imap user", required=True)
-    parser.add_argument("-o", "--port", help="imap port", required=False)
+    parser.add_argument("-o", "--port", help="imap port", required=False,
+                        type=int)
     parser.add_argument("-p", "--password", help="imap user", required=True)
     parser.add_argument(
         "-v",
