@@ -28,6 +28,7 @@ class TestMailboxAbstract(unittest.TestCase):
                                     all=True,
                                     max_size=20,
                                     skip_download=False,
+                                    read_only=False,
                                     detach=True,
                                     target=TestMailboxAbstract._TARGET,
                                     upload='tests',

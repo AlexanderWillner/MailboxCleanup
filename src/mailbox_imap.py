@@ -55,7 +55,6 @@ class MailboxCleanerIMAP():
         """Initialize class."""
 
         self.args = args
-        self.readonly = not self.args.detach
         self.message = MailboxCleanerMessage(args)
         self.cache = collections.OrderedDict()
         self.cache_file = args.server + '_cache.pkl'
@@ -100,7 +99,7 @@ class MailboxCleanerIMAP():
         """Check if message is already on the server."""
 
         msg_uid = self.message.get_uid(msg)
-        self.imap.select(self.args.folder, readonly=True)
+        self.imap.select(self.args.folder, readonly=self.args.read_only)
         status, data = self.imap.uid('SEARCH', None,
                                      '(HEADER Message-ID "%s") UNDELETED'
                                      % msg_uid)
@@ -162,16 +161,16 @@ class MailboxCleanerIMAP():
         """Upload new message and remove the old one."""
 
         # Only upload in non-readonly mode
-        if self.readonly:
-            logging.debug('    Detaching\t: skipped (read-only mode)')
+        if self.args.read_only:
+            logging.debug('    Replacing\t: skipped (read-only)')
             return
 
         # Upload new message
         status, data = self.upload(msg, msg_flags)
 
         # Delete old message
-        if status == 'OK' and self.readonly is False:
-            result = self.imap.select(folder, readonly=self.readonly)
+        if status == 'OK' and self.args.read_only is False:
+            result = self.imap.select(folder, readonly=self.args.read_only)
             assert result[0] == 'OK'
             result = self.imap.uid('STORE', msg_uid, '+FLAGS', '\\Deleted')
             logging.debug('    Deleting\t: %s', result)
@@ -187,7 +186,7 @@ class MailboxCleanerIMAP():
             except imaplib.IMAP4.abort:
                 pass
         else:
-            logging.warning('    Error\t: "%s"', data)
+            logging.warning('    Result\t: %s (%s)', status, data)
 
     def upload(self, msg, msg_flags='\\Seen'):
         """Upload message to server."""
@@ -196,6 +195,10 @@ class MailboxCleanerIMAP():
         msg_date = self.convert_date(msg.get('date'))
         msg_subject = self.message.get_subject(msg)
         msg_uid = self.message.get_uid(msg)
+        if self.args.read_only:
+            logging.warning('    Uploading\t: skipped (read-only)')
+            return ('Read Only', '')
+
         logging.debug('    Uploading\t: %s / %s', msg_date, msg_flags)
 
         # Check cache
@@ -215,7 +218,7 @@ class MailboxCleanerIMAP():
             logging.warning('    Success\t: %s', status)
             self.cache[msg_uid] = msg_subject
         else:
-            logging.warning('    Error\t\t: %s', data)
+            logging.warning('    Return\t\t: %s, %s', status, data)
 
         return status, data
 
@@ -254,8 +257,7 @@ class MailboxCleanerIMAP():
         """Get all emails from a folder on the IMAP server."""
 
         # Safety net: enable read-only if requested
-        logging.warning('Read Only\t: %s', self.readonly)
-        self.imap.select(folder, readonly=self.readonly)
+        self.imap.select(folder, readonly=self.args.read_only)
 
         # Extract email UIDs
         result_mails, data_mails = self.imap.uid('search', None, "ALL")
@@ -271,7 +273,6 @@ class MailboxCleanerIMAP():
         res, folder_list = self.imap.list()
 
         logging.warning('Folders (#)\t: %s (%s)', res, len(folder_list))
-        logging.warning('All Folders\t: %s', self.args.all)
 
         if not self.args.all:
             folders = [self.args.folder]

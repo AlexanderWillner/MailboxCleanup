@@ -62,9 +62,14 @@ Tool: https://github.com/AlexanderWillner/MailboxCleanup
         for part in msg.walk():
             if self.is_non_detachable_part(part):
                 continue
+            # Only download in relevant mode
             date = time.mktime(email.utils.parsedate(msg.get('date')))
             target = self.download_attachment(part, date)
             if target is not None:
+                # Only detach in relevant mode
+                if not self.args.detach:
+                    logging.debug('      Detaching\t: skipped (disabled)')
+                    continue
                 self.detach_attachment(part, target)
                 modified = True
 
@@ -86,7 +91,7 @@ Tool: https://github.com/AlexanderWillner/MailboxCleanup
         """Download the attachment from a part of an email."""
 
         if self.args.skip_download:
-            logging.info('    Downloading\t: skipped (disabled)')
+            logging.info('      Downl.\t: skipped (disabled)')
             return ""
 
         file_attached = self.convert_filename(part.get_filename())
@@ -99,9 +104,9 @@ Tool: https://github.com/AlexanderWillner/MailboxCleanup
         if not os.path.exists(self.args.target):
             os.mkdir(self.args.target)
         with tempfile.NamedTemporaryFile() as file_temp:
-            logging.info('    Downloading\t: "%s" (%s)',
+            logging.info('      Downl.\t: "%s" (%s)',
                          file_attached, part.get_content_maintype())
-            logging.debug('    Downloading\t: To "%s"', file_temp.name)
+            logging.debug('      Downl.\t: To "%s"', file_temp.name)
             payload = part.get_payload(decode=True)
             file_temp.write(payload)
             target = self._copy_file(file_temp.name, file_attached, date)
@@ -116,7 +121,7 @@ Tool: https://github.com/AlexanderWillner/MailboxCleanup
             target_base = target_base + "-" + str(iterator)
         target = os.path.join(self.args.target, target_base + target_extension)
         if iterator == 0:
-            logging.debug('    Moving\t: From "%s" to "%s".', source, target)
+            logging.debug('      Moving\t: From "%s" to "%s".', source, target)
 
         if not os.path.isfile(target):
             shutil.copy2(source, target)
@@ -127,10 +132,10 @@ Tool: https://github.com/AlexanderWillner/MailboxCleanup
             if source_hash != target_hash:
                 if iterator == 0:
                     logging.debug(
-                        '    Conflict\t: Resolving same file / other hash...')
+                        '      Conflict\t: Resolving same file / other hash..')
                 self._copy_file(source, target_name, date, iterator + 1)
             else:
-                logging.debug('    Moving\t: Already exists (same hash)')
+                logging.debug('      Moving\t: Already exists (same hash)')
 
         return target
 
@@ -155,7 +160,7 @@ Tool: https://github.com/AlexanderWillner/MailboxCleanup
                not filename.lower().endswith(".emlx"):
                 continue
 
-            logging.warning('Files\t: %d / %d', i, len(filenames))
+            logging.warning('Files\t\t: %d / %d', i, len(filenames))
 
             with open(filename) as filepointer:
                 # Specific handling of emlx files
@@ -185,7 +190,7 @@ Tool: https://github.com/AlexanderWillner/MailboxCleanup
         msg_size = len(str(msg)) / 1024
         msg_type = msg.get_content_disposition()
 
-        logging.debug('    Detaching\t: %s', msg_filename)
+        logging.debug('      Detaching\t: %s', msg_filename)
 
         # Remove some old headers
         del msg['Content-Transfer-Encoding']

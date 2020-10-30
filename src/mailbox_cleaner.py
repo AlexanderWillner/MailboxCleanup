@@ -31,21 +31,27 @@ def handle_arguments() -> argparse.ArgumentParser:
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-a", "--all",
-                        help="iterate over all folders", action='store_true')
+                        help="iterate over all folders",
+                        action='store_true')
     parser.add_argument("-d", "--detach",
-                        help="remove attachments", action='store_true')
+                        help="remove attachments",
+                        action='store_true')
     parser.add_argument("-k", "--skip-download",
-                        help="download attachments", action='store_true')
-    parser.add_argument("-r", "--reset-cache",
-                        help="reset cache", action='store_true')
+                        help="don't download attachments",
+                        action='store_true')
+    parser.add_argument("-c", "--reset-cache",
+                        help="reset cache",
+                        action='store_true')
+    parser.add_argument("-r", "--read-only",
+                        help="read-only mode for the imap server",
+                        action='store_true')
     parser.add_argument("-m", "--max-size",
-                        help="max attachment size in KB", default=200,
-                        type=int)
+                        help="max attachment size in KB",
+                        default=200, type=int)
     parser.add_argument("-f", "--folder",
                         help="imap folder to process", default="Inbox")
     parser.add_argument("-l", "--upload",
                         help="local folder with messages to upload")
-
     parser.add_argument("-t", "--target",
                         help="download attachments to this local folder",
                         default="attachments")
@@ -84,6 +90,16 @@ def main():
     # todo: repeat here a couple of times  pylint: disable=W0511
     try:
         imap.login()
+        logging.warning('Server\t\t: %s@%s', args.user, args.server)
+        logging.warning('Read Only\t: %s', args.read_only)
+        logging.warning('Detach\t\t: %s', args.detach)
+        logging.warning('Cache Enabled\t: %s', not args.reset_cache)
+        logging.warning('Download\t: %s', not args.skip_download)
+        logging.warning('Max Size\t: %s KB', args.max_size)
+        logging.warning('Target\t\t: %s', args.target)
+        logging.warning('Upload\t\t: %s', args.upload)
+        logging.warning('All Folders\t: %s', args.all)
+
         if args.upload:
             message.process_directory(imap.upload)
         else:

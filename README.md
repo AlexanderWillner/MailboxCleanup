@@ -20,14 +20,15 @@ You can run the command via `./bin/mailbox_cleaner`.
 
 ```shell
 $ ./bin/mailbox_cleaner --help
-usage: mailbox_cleaner.py [-h] [-a] [-d] [-k] [-r] [-m MAX_SIZE] [-f FOLDER] [-l UPLOAD] [-t TARGET] -s SERVER -u USER [-o PORT] -p PASSWORD [-v] [--version]
+usage: mailbox_cleaner.py [-h] [-a] [-d] [-k] [-c] [-r] [-m MAX_SIZE] [-f FOLDER] [-l UPLOAD] [-t TARGET] -s SERVER -u USER [-o PORT] -p PASSWORD [-v] [--version]
 
 optional arguments:
   -h, --help            show this help message and exit
   -a, --all             iterate over all folders
   -d, --detach          remove attachments
-  -k, --skip-download   download attachments
-  -r, --reset-cache     reset cache
+  -k, --skip-download   don't download attachments
+  -c, --reset-cache     reset cache
+  -r, --read-only       read-only mode for the imap server
   -m MAX_SIZE, --max-size MAX_SIZE
                         max attachment size in KB
   -f FOLDER, --folder FOLDER
@@ -46,31 +47,99 @@ optional arguments:
   --version             show program's version number and exit
 ```
 
-## Example
+Some useful tips:
 
-If you don't want to type your password on the terminal, you can use built-in password managing tools (here an example using the macOS Keychain).
+- Using the password from a keychain: If you don't want to type your password on the terminal, you can use built-in password managing tools (here an example using the macOS Keychain): `--password $(security -q find-generic-password -wa googlemailpwd)`.
+- Enable debug and read-only mode: To make sure nothing changes on your server while you're testing, use the flag `--read-only` and enabled the debug mode via `-vvv` to understand what is happening.
+- Download large attachments: By default, the application just downloads large attachments to the folder `attachments` and you might want to do this with all your mails using `--all`.
+- Remove large attachments from server: To safe space on the mail server, you might want to remove mail attachments from the server: `$ ./bin/mailbox_cleaner --detach`.
+- Upload messages to the server: You might have a large archive of mails (`eml`, `emlx` and `partial.emlx` files) that you want to detach the large attachements from and then upload the small text parts: `$ ./bin/mailbox_cleaner  --upload path/to/archive --folder import`.
 
-```shell
-$ ./bin/mailbox_cleaner --server imap.gmail.com --user user@example.org --password $(security -q find-generic-password -wa googlemailpwd)
-Folders (#) : OK (27)
-All Folders : False
-Folder      : Inbox (started)
-Read Only   : True
-Mails (#)   : OK (30)
-Folder      : Inbox (completed)
-```
-
-You can also remove attachments from local `eml` files from a directory and upload them:
+### Example
 
 ```shell
-$ ./bin/mailbox_cleaner --server imap.gmail.com --user user@example.org --password $(security -q find-generic-password -wa googlemailpwd) --folder imap_folder --upload my_eml_dir
-Folders (#) : OK (27)
-All Folders : False
-File        : my_eml_dir/test.eml (Test)
-    Success : OK
+$  ./bin/mailbox_cleaner --server imap.google.de --user user@example.org --password mypass --folder temp --max-size 20 --detach -vvv
+Read Only	: False
+Detach		: True
+Cache Enabled	: True
+Download	: True
+Max Size	: 20 KB
+Target		: attachments
+Upload		: None
+All Folders	: False
+Folders (#)	: OK (32)
+Progress	: 1 / 1 (folders)
+Folder		: temp (started)
+Mails (#)	: OK (4)
+Progress	: 1 / 4 (mail uid: 96)
+  Result (Size)	: OK (40 KB)
+  Flags		: \Seen
+  Subject	: Test1
+    Part	: 39 KB / 20 KB (type: multipart)
+    Part	: 1 KB / 20 KB (type: multipart)
+    Part	: 0 KB / 20 KB (type: text)
+    Part	: 0 KB / 20 KB (type: text)
+    Part	: 37 KB / 20 KB (type: image)
+      Downl.	: "fed00c051c9f991a8a2d19dcadcf5ff3.jpg" (image)
+      Downl.	: To "/var/folders/q6/nhd43_qx2jv9dq75dk6c5fy40000gn/T/tmp5xtsr7yb"
+      Moving	: From "/var/folders/q6/nhd43_qx2jv9dq75dk6c5fy40000gn/T/tmp5xtsr7yb" to "attachments/fed00c051c9f991a8a2d19dcadcf5ff3.jpg".
+      Detaching	: fed00c051c9f991a8a2d19dcadcf5ff3.jpg
+    Uploading	: "24-Oct-2020 09:26:57 +0200" / \Seen
+    Success	: OK
+    Deleting	: ('OK', [b'1 (FLAGS (\\Seen \\Deleted))'])
+    Comment	: Expunged
+Progress	: 2 / 4 (mail uid: 97)
+  Result (Size)	: OK (40 KB)
+  Flags		: \Seen
+  Subject	: Test2
+    Part	: 39 KB / 20 KB (type: multipart)
+    Part	: 1 KB / 20 KB (type: multipart)
+    Part	: 0 KB / 20 KB (type: text)
+    Part	: 0 KB / 20 KB (type: text)
+    Part	: 37 KB / 20 KB (type: image)
+      Downl.	: "fed00c051c9f991a8a2d19dcadcf5ff3.jpg" (image)
+      Downl.	: To "/var/folders/q6/nhd43_qx2jv9dq75dk6c5fy40000gn/T/tmp3_njbppc"
+      Moving	: From "/var/folders/q6/nhd43_qx2jv9dq75dk6c5fy40000gn/T/tmp3_njbppc" to "attachments/fed00c051c9f991a8a2d19dcadcf5ff3.jpg".
+      Conflict	: Resolving same file / other hash...
+      Detaching	: fed00c051c9f991a8a2d19dcadcf5ff3.jpg
+    Uploading	: "25-Oct-2020 08:26:57 +0100" / \Seen
+    Success	: OK
+    Deleting	: ('OK', [b'1 (FLAGS (\\Seen \\Deleted))'])
+    Comment	: Expunged
+Progress	: 3 / 4 (mail uid: 98)
+  Result (Size)	: OK (40 KB)
+  Flags		: \Seen
+  Subject	: Test3
+    Part	: 39 KB / 20 KB (type: multipart)
+    Part	: 1 KB / 20 KB (type: multipart)
+    Part	: 0 KB / 20 KB (type: text)
+    Part	: 0 KB / 20 KB (type: text)
+    Part	: 37 KB / 20 KB (type: image)
+Warning	: Unknown attachment (skipping this attachment)
+Progress	: 4 / 4 (mail uid: 99)
+  Result (Size)	: OK (39 KB)
+  Flags		: \Seen
+  Subject	: Test4
+    Part	: 38 KB / 20 KB (type: multipart)
+    Part	: 0 KB / 20 KB (type: text)
+    Part	: 37 KB / 20 KB (type: image)
+      Downl.	: "page-icon.jpg" (image)
+      Downl.	: To "/var/folders/q6/nhd43_qx2jv9dq75dk6c5fy40000gn/T/tmpet2j30gj"
+      Moving	: From "/var/folders/q6/nhd43_qx2jv9dq75dk6c5fy40000gn/T/tmpet2j30gj" to "attachments/page-icon.jpg".
+      Detaching	: page-icon.jpg
+    Uploading	: "27-Oct-2020 08:26:57 +0100" / \Seen
+    Success	: OK
+    Deleting	: ('OK', [b'2 (FLAGS (\\Seen \\Deleted))'])
+    Comment	: Expunged
+Folder		: temp (completed)
+Connection	: Closed
+Connection	: Logged Out
 ```
+
+
 
 ## Open Issues / Planned Enhancements
 
 * Enhance error handling. E.g. detect silent Exchange errors such as a successful fetch of mails with a localized subject such as `Fehler beim Abrufen der folgenden Nachricht`).
 * Filter specific attachements. E.g. don't download `smime.p7m`.
+
