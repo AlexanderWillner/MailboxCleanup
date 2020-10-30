@@ -42,9 +42,10 @@ class MailboxCleanerMessage():
     _PLACEHOLDER = """
 ===========================================================
 This message contained an attachment that was stripped out.
-The filename was: "%(filename)s".
-The size was: %(size)d KB.
-The type was: %(type)s.
+The file was stored to: "%(newfile)s".
+The original file name was: "%(filename)s".
+The original size was: %(size)d KB.
+The original type was: %(type)s.
 Tool: https://github.com/AlexanderWillner/MailboxCleanup
 ===========================================================
 """
@@ -62,9 +63,9 @@ Tool: https://github.com/AlexanderWillner/MailboxCleanup
             if self.is_non_detachable_part(part):
                 continue
             date = time.mktime(email.utils.parsedate(msg.get('date')))
-            success = self.download_attachment(part, date)
-            if success:
-                self.detach_attachment(part)
+            target = self.download_attachment(part, date)
+            if target is not None:
+                self.detach_attachment(part, target)
                 modified = True
 
         return modified
@@ -81,19 +82,19 @@ Tool: https://github.com/AlexanderWillner/MailboxCleanup
             part.get('Content-Disposition') is None or \
             msg_size <= self.args.max_size
 
-    def download_attachment(self, part, date) -> bool:
+    def download_attachment(self, part, date) -> str:
         """Download the attachment from a part of an email."""
 
         if self.args.skip_download:
             logging.info('    Downloading\t: skipped (disabled)')
-            return True
+            return ""
 
         file_attached = self.convert_filename(part.get_filename())
 
         if file_attached == "unknown":
             logging.warning('Warning\t: Unknown attachment '
                             '(skipping this attachment)')
-            return False
+            return None
 
         if not os.path.exists(self.args.target):
             os.mkdir(self.args.target)
@@ -103,11 +104,11 @@ Tool: https://github.com/AlexanderWillner/MailboxCleanup
             logging.debug('    Downloading\t: To "%s"', file_temp.name)
             payload = part.get_payload(decode=True)
             file_temp.write(payload)
-            self._copy_file(file_temp.name, file_attached, date)
+            target = self._copy_file(file_temp.name, file_attached, date)
 
-        return True
+        return target
 
-    def _copy_file(self, source, target_name, date, iterator=0):
+    def _copy_file(self, source, target_name, date, iterator=0) -> str:
         """Copy file, check for duplicates via hash value."""
 
         target_base, target_extension = os.path.splitext(target_name)
@@ -130,6 +131,8 @@ Tool: https://github.com/AlexanderWillner/MailboxCleanup
                 self._copy_file(source, target_name, date, iterator + 1)
             else:
                 logging.debug('    Moving\t: Already exists (same hash)')
+
+        return target
 
     def process_directory(self, handler, folder=None):
         """Upload messages from a local directory."""
@@ -172,7 +175,7 @@ Tool: https://github.com/AlexanderWillner/MailboxCleanup
                 handler(msg)
 
     @staticmethod
-    def detach_attachment(msg):
+    def detach_attachment(msg, target):
         """Replace large attachment with dummy text."""
 
         # Get message details
@@ -181,6 +184,8 @@ Tool: https://github.com/AlexanderWillner/MailboxCleanup
             msg.get_filename())
         msg_size = len(str(msg)) / 1024
         msg_type = msg.get_content_disposition()
+
+        logging.debug('    Detaching\t: %s', msg_filename)
 
         # Remove some old headers
         del msg['Content-Transfer-Encoding']
@@ -201,7 +206,8 @@ Tool: https://github.com/AlexanderWillner/MailboxCleanup
                            'removed-%s.txt' % msg_filename)
 
         # Replace content
-        msg_details = dict(type=msg_content,
+        msg_details = dict(newfile=target,
+                           type=msg_content,
                            filename=msg_filename,
                            size=msg_size)
         msg_placeholder = MailboxCleanerMessage._PLACEHOLDER % msg_details
