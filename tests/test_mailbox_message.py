@@ -4,6 +4,7 @@
 """Module documentation goes here."""
 
 import email
+import time
 import unittest
 from src.mailbox_message import MailboxCleanerMessage
 from tests.test_mailbox_abstract import TestMailboxAbstract
@@ -40,10 +41,10 @@ class TestMailboxMessage(TestMailboxAbstract, unittest.TestCase):
         expected = 'E280C461-3229-4671-82B5-8F10E6866E9D@server.example.org'
         self.assertEqual(uid, expected)
 
-        message.download_attachment(msg)
+        message.download_attachment(msg, time.time())
 
         self.args.skip_download = True
-        message.download_attachment(msg)
+        message.download_attachment(msg, time.time())
 
     def test_detach_attachment(self):
         """Testing detaching attachments."""

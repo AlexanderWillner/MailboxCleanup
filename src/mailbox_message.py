@@ -18,6 +18,7 @@ import os.path
 import re
 import shutil
 import tempfile
+import time
 import unicodedata
 import src.emlx2eml
 
@@ -60,7 +61,8 @@ Tool: https://github.com/AlexanderWillner/MailboxCleanup
         for part in msg.walk():
             if self.is_non_detachable_part(part):
                 continue
-            success = self.download_attachment(part)
+            date = time.mktime(email.utils.parsedate(msg.get('date')))
+            success = self.download_attachment(part, date)
             if success:
                 self.detach_attachment(part)
                 modified = True
@@ -79,7 +81,7 @@ Tool: https://github.com/AlexanderWillner/MailboxCleanup
             part.get('Content-Disposition') is None or \
             msg_size <= self.args.max_size
 
-    def download_attachment(self, part) -> bool:
+    def download_attachment(self, part, date) -> bool:
         """Download the attachment from a part of an email."""
 
         if self.args.skip_download:
@@ -101,11 +103,11 @@ Tool: https://github.com/AlexanderWillner/MailboxCleanup
             logging.debug('    Downloading\t: To "%s"', file_temp.name)
             payload = part.get_payload(decode=True)
             file_temp.write(payload)
-            self._copy_file(file_temp.name, file_attached)
+            self._copy_file(file_temp.name, file_attached, date)
 
         return True
 
-    def _copy_file(self, source, target_name, iterator=0):
+    def _copy_file(self, source, target_name, date, iterator=0):
         """Copy file, check for duplicates via hash value."""
 
         target_base, target_extension = os.path.splitext(target_name)
@@ -117,6 +119,7 @@ Tool: https://github.com/AlexanderWillner/MailboxCleanup
 
         if not os.path.isfile(target):
             shutil.copy2(source, target)
+            os.utime(target, (date, date))
         else:
             source_hash = MailboxCleanerMessage.get_hash(source)
             target_hash = MailboxCleanerMessage.get_hash(target)
@@ -124,7 +127,7 @@ Tool: https://github.com/AlexanderWillner/MailboxCleanup
                 if iterator == 0:
                     logging.debug(
                         '    Conflict\t: Resolving same file / other hash...')
-                self._copy_file(source, target_name, iterator + 1)
+                self._copy_file(source, target_name, date, iterator + 1)
             else:
                 logging.debug('    Moving\t: Already exists (same hash)')
 
