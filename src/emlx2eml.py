@@ -112,42 +112,43 @@ def parse_msg(attach_dir, msg, depth):
 # the time the mail was downloaded. The list below is extracted by parsing
 # /System/Library/PrivateFrameworks/Notes.framework/Versions/A/Resources/*.lproj/MailCore.strings
 base_filenames = (
-    u"مرفق البريد", # ar
-    u"Adjunt de Mail", # ca
-    u"Příloha pošty", # cs
-    u"Postbilag", # da
-    u"Mail-Anhang", # de
-    u"Συνημμένο Mail", # el
-    u"Mail Attachment", # en, en_AU, en_GB
-    u"Archivo adjunto al mensaje", # es
-    u"Archivo adjunto a un correo", # es_419
-    u"Sähköpostiliite", # fi
-    u"Pièce jointe", # fr, fr_CA
-    u"קובץ מצורף לדואר", # he
-    u"मेल अटैचमेंट", # hi
-    u"E-mail privitak", # hr
-    u"Mail melléklet", # hu
-    u"Lampiran Mail", # id
-    u"Allegato di posta elettronica", # it
-    u"メールの添付ファイル", # ja
-    u"Mail 첨부 파일", # ko
-    u"Lampiran Mail", # ms
-    u"Mail-bijlage", # nl
-    u"E-postvedlegg", # no
-    u"Załącznik poczty", # pl
-    u"Anexo de E-mail", # pt
-    u"Anexo de e‑mail", # pt_PT
-    u"Fișier atașat Mail", # ro
-    u"Вложенный файл Почты", # ru
-    u"Mailová príloha", # sk
-    u"Brevbilaga", # sv
-    u"ไฟล์แนบเมล", # th
-    u"Posta İlişiği", # tr
-    u"Поштове прикріплення", # uk
-    u"Tệp đính kèm của Mail", # vi
-    u"邮件附件", # yue_CN, zh_CN,
-    u"郵件附件", # zh_HK, zh_TW
-    )
+    u"مرفق البريد",  # ar
+    u"Adjunt de Mail",  # ca
+    u"Příloha pošty",  # cs
+    u"Postbilag",  # da
+    u"Mail-Anhang",  # de
+    u"Συνημμένο Mail",  # el
+    u"Mail Attachment",  # en, en_AU, en_GB
+    u"Archivo adjunto al mensaje",  # es
+    u"Archivo adjunto a un correo",  # es_419
+    u"Sähköpostiliite",  # fi
+    u"Pièce jointe",  # fr, fr_CA
+    u"קובץ מצורף לדואר",  # he
+    u"मेल अटैचमेंट",  # hi
+    u"E-mail privitak",  # hr
+    u"Mail melléklet",  # hu
+    u"Lampiran Mail",  # id
+    u"Allegato di posta elettronica",  # it
+    u"メールの添付ファイル",  # ja
+    u"Mail 첨부 파일",  # ko
+    u"Lampiran Mail",  # ms
+    u"Mail-bijlage",  # nl
+    u"E-postvedlegg",  # no
+    u"Załącznik poczty",  # pl
+    u"Anexo de E-mail",  # pt
+    u"Anexo de e‑mail",  # pt_PT
+    u"Fișier atașat Mail",  # ro
+    u"Вложенный файл Почты",  # ru
+    u"Mailová príloha",  # sk
+    u"Brevbilaga",  # sv
+    u"ไฟล์แนบเมล",  # th
+    u"Posta İlişiği",  # tr
+    u"Поштове прикріплення",  # uk
+    u"Tệp đính kèm của Mail",  # vi
+    u"邮件附件",  # yue_CN, zh_CN,
+    u"郵件附件",  # zh_HK, zh_TW
+)
+
 
 def mimetypes_guess_extension(mime_type):
     # We don't want to always use mimetypes.guess_extension,
@@ -165,11 +166,12 @@ def mimetypes_guess_extension(mime_type):
             "image/pjpeg":    u".jpg",
             "image/jpg":      u".jpg",
             "message/rfc822": u".eml",
-            }[mime_type]
+        }[mime_type]
     except KeyError:
         log.error("Unknown file extension for %r, making a guess...",
-            mime_type)
+                  mime_type)
         return mimetypes.guess_extension(mime_type)
+
 
 def include_attachment(attach_dir, part, depth):
     if "X-Apple-Content-Length" not in part:
@@ -183,7 +185,8 @@ def include_attachment(attach_dir, part, depth):
             try:
                 data = open(dirpath+"/"+file, "rb").read()
                 break
-            except: # python2 raises IOError, python3 raises FileNotFoundError
+            # python2 raises IOError, python3 raises FileNotFoundError
+            except (IOError, FileNotFoundError):
                 continue
         else:
             log.error("%s  Unnamed attachment of extension %s not found in %s",
