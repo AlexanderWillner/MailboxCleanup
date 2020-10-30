@@ -86,11 +86,13 @@ class MailboxCleanerIMAP():
 
         try:
             self.imap.close()
+            logging.warning('Connection\t: Closed')
         except (AttributeError, imaplib.IMAP4.error):
             pass
 
         try:
             self.imap.logout()
+            logging.warning('Connection\t: Logged Out')
         except (AttributeError, imaplib.IMAP4.error):
             pass
 
@@ -99,9 +101,13 @@ class MailboxCleanerIMAP():
 
         msg_uid = self.message.get_uid(msg)
         self.imap.select(self.args.folder, readonly=True)
-        status, data = self.imap.uid('SEARCH',
-                                     '(HEADER Message-ID "%s")' % msg_uid)
-        if data is not None and len(data[0]) > 0:
+        status, data = self.imap.uid('SEARCH', None,
+                                     '(HEADER Message-ID "%s") UNDELETED'
+                                     % msg_uid)
+
+        if data is not None and\
+           len(data[0]) > 0 and\
+           self.args.upload is not None:
             logging.warning('    Duplicate\t: %s', status)
             self.cache[msg_uid] = self.message.get_subject(msg_uid)
             return True
@@ -146,13 +152,13 @@ class MailboxCleanerIMAP():
 
                 # Upload new email
                 if modified:
-                    self.replace_msg(msg, msg_flags, msg_uid)
+                    self.replace_msg(msg, msg_flags, msg_uid, folder)
 
                 self.cache[msg_uid] = subject
 
             logging.warning('Folder\t\t: %s (completed)', folder)
 
-    def replace_msg(self, msg, msg_flags, msg_uid):
+    def replace_msg(self, msg, msg_flags, msg_uid, folder):
         """Upload new message and remove the old one."""
 
         # Only upload in non-readonly mode
@@ -164,8 +170,11 @@ class MailboxCleanerIMAP():
         status, data = self.upload(msg, msg_flags)
 
         # Delete old message
-        if status == 'OK':
-            self.imap.uid('STORE', msg_uid, '+FLAGS', '\\Deleted')
+        if status == 'OK' and self.readonly is False:
+            result = self.imap.select(folder, readonly=self.readonly)
+            assert result[0] == 'OK'
+            result = self.imap.uid('STORE', msg_uid, '+FLAGS', '\\Deleted')
+            logging.debug('    Deleting\t: %s', result)
             # GMail needs special treatment
             try:
                 self.imap.uid('STORE', msg_uid, '+X-GM-LABELS', '\\Trash')
@@ -174,6 +183,7 @@ class MailboxCleanerIMAP():
             # Sometimes expunge just fails with an EOF socket error
             try:
                 self.imap.expunge()
+                logging.debug('    Comment\t: Expunged')
             except imaplib.IMAP4.abort:
                 pass
         else:
