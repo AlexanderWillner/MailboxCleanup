@@ -1,3 +1,6 @@
+-include appstore/Makefile
+
+VERSION=1.0.0.dev0
 SRC_CORE=src
 SRC_TEST=tests
 PYTHON=python3
