@@ -10,6 +10,7 @@ from __future__ import print_function
 
 import argparse
 import logging
+import os
 
 from src.mailbox_imap import MailboxCleanerIMAP
 from src.mailbox_message import MailboxCleanerMessage
@@ -84,6 +85,8 @@ def main():
     """Setup and run remover."""
 
     args = handle_arguments()
+    args.target = os.path.expanduser(args.target) if args.target is not None else None
+    args.upload = os.path.expanduser(args.upload) if args.upload is not None else None
     message = MailboxCleanerMessage(args)
     imap = MailboxCleanerIMAP(args)
 
