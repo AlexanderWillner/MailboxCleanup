@@ -42,7 +42,7 @@ class MailboxCleanerMessage():
     _PLACEHOLDER = """
 ===========================================================
 This message contained an attachment that was stripped out.
-The file was stored to: "%(newfile)s".
+The attachment was stored using the file name: "%(newfile)s".
 The original file name was: "%(filename)s".
 The original size was: %(size)d KB.
 The original type was: %(type)s.
@@ -211,7 +211,7 @@ Tool: https://github.com/AlexanderWillner/MailboxCleanup
                            'removed-%s.txt' % msg_filename)
 
         # Replace content
-        msg_details = dict(newfile=target,
+        msg_details = dict(newfile=os.path.basename(target),
                            type=msg_content,
                            filename=msg_filename,
                            size=msg_size)
