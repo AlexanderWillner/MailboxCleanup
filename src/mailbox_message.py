@@ -145,11 +145,15 @@ Tool: https://github.com/AlexanderWillner/MailboxCleanup
         source = self.args.upload if folder is None else folder
         if os.path.isfile(source):
             filenames = [os.path.dirname(source)]
+            source = os.path.basename(source)
         else:
             filenames = os.listdir(source)
 
         for i, filename in enumerate(filenames, start=1):
-            filename = os.path.join(source, filename)
+            if os.path.isfile(source):
+                filename = source
+            else:
+                filename = os.path.join(source, filename)
 
             # Recursive walker
             if os.path.isdir(filename):
