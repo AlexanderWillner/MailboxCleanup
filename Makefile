@@ -40,6 +40,8 @@ clean:
 	@rm -f $(SRC_TEST)/*.pyc
 	@rm -rf $(SRC_TEST)/__pycache__
 	@rm -rf htmlcov
+	@rm -rf dist
+	@rm -rf build
 
 auto-style:
 	@type autopep8 >/dev/null 2>&1 || (echo "Run '$(PIP) install autopep8' first." >&2 ; exit 1)
