@@ -113,6 +113,10 @@ class MailboxCleanerIMAP():
 
         return False
 
+    def process_directory(self):
+        """Iterate over mails from a local directory for upload."""
+        self.message.process_directory(self.upload)
+
     def process_folders(self):
         """Iterate over mails in configured folders."""
 
@@ -271,15 +275,18 @@ class MailboxCleanerIMAP():
         """Get the folders from the IMAP server to iterate through."""
 
         res, folder_list = self.imap.list()
-
         logging.warning('Folders (#)\t: %s (%s)', res, len(folder_list))
 
+        folders = [item.decode().split('"/"')[-1].strip()
+                   for item in folder_list]
+
         if not self.args.all:
+            if self.args.folder.lower() not in map(str.lower, folders):
+                raise imaplib.IMAP4.error(
+                    'IMAP folder %s does not exist. Existing folders: %s'
+                    % (self.args.folder, folders))
             folders = [self.args.folder]
         else:
-            folders = [item.decode().split('"/"')[-1].strip()
-                       for item in folder_list]
-
             folders[:] = [item for item in folders
                           if not item.startswith(self.__IGNORE_PREFIX)]
             folders[:] = [item for item in folders
