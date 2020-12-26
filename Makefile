@@ -24,7 +24,7 @@ help:
 	@echo " * feedback     - Create a GitHub issue."
 
 run:
-	@$(PYTHON) -m $(SRC_CORE).mailbox_cleaner --help
+	@$(PYTHON) -m $(SRC_CORE).mailbox_cli --help
 
 test:
 	@type coverage >/dev/null 2>&1 || (echo "Run '$(PIP) install coverage' first." >&2 ; exit 1)
@@ -32,7 +32,7 @@ test:
 	@coverage report
 
 doc:
-	@$(PYDOC) src.mailbox_cleaner
+	@$(PYDOC) src.mailbox_cli
 
 clean:
 	@rm -f $(SRC_CORE)/*.pyc

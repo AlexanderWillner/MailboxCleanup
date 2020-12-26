@@ -7,3 +7,4 @@ ignore_errors = True
 
 omit = 
     */__init__.py
+    setup.py

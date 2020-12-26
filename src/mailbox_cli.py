@@ -13,7 +13,6 @@ import logging
 import os
 
 from src.mailbox_imap import MailboxCleanerIMAP
-from src.mailbox_message import MailboxCleanerMessage
 
 
 __author__ = "Alexander Willner"
@@ -89,7 +88,6 @@ def main():
         args.target) if args.target is not None else None
     args.upload = os.path.expanduser(
         args.upload) if args.upload is not None else None
-    message = MailboxCleanerMessage(args)
     imap = MailboxCleanerIMAP(args)
 
     # todo: repeat here a couple of times  pylint: disable=W0511
@@ -106,7 +104,7 @@ def main():
         logging.warning('All Folders\t: %s', args.all)
 
         if args.upload:
-            message.process_directory(imap.upload)
+            imap.process_directory()
         else:
             imap.process_folders()
     except KeyboardInterrupt as error:
