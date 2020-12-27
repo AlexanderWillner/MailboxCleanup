@@ -20,7 +20,7 @@ You can run the command via `./bin/mailbox_cleaner`.
 
 ```shell
 $ ./bin/mailbox_cleaner --help
-usage: mailbox_cleaner.py [-h] [-a] [-d] [-k] [-c] [-r] [-m MAX_SIZE] [-f FOLDER] [-l UPLOAD] [-t TARGET] -s SERVER -u USER [-o PORT] -p PASSWORD [-v] [--version]
+usage: mailbox_cleaner.py [-h] [-a] [-d] [-k] [-c] [-r] [-m MIN_SIZE] [-f FOLDER] [-l UPLOAD] [-t TARGET] -s SERVER -u USER [-o PORT] -p PASSWORD [-v] [--version]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -29,8 +29,8 @@ optional arguments:
   -k, --skip-download   don't download attachments
   -c, --reset-cache     reset cache
   -r, --read-only       read-only mode for the imap server
-  -m MAX_SIZE, --max-size MAX_SIZE
-                        max attachment size in KB
+  -m MIN_SIZE, --min-size MIN_SIZE
+                        min attachment size in KB
   -f FOLDER, --folder FOLDER
                         imap folder to process
   -l UPLOAD, --upload UPLOAD
@@ -59,12 +59,12 @@ Some useful tips:
 ### Example
 
 ```shell
-$  ./bin/mailbox_cleaner --server imap.google.de --user user@example.org --password mypass --folder temp --max-size 20 --detach -vvv
+$  ./bin/mailbox_cleaner --server imap.google.de --user user@example.org --password mypass --folder temp --min-size 20 --detach -vvv
 Read Only	: False
 Detach		: True
 Cache Enabled	: True
 Download	: True
-Max Size	: 20 KB
+Min Size	: 20 KB
 Target		: attachments
 Upload		: None
 All Folders	: False

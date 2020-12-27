@@ -80,12 +80,12 @@ Tool: https://github.com/AlexanderWillner/MailboxCleanup
 
         msg_size = len(str(part)) / 1024
         logging.debug('    Part\t: %d KB / %d KB (type: %s)',
-                      msg_size, self.args.max_size,
+                      msg_size, self.args.min_size,
                       part.get_content_maintype())
 
         return part.get_content_maintype() == 'multipart' or \
             part.get('Content-Disposition') is None or \
-            msg_size <= self.args.max_size
+            msg_size <= self.args.min_size
 
     def download_attachment(self, part, date) -> str:
         """Download the attachment from a part of an email."""
@@ -283,5 +283,6 @@ Tool: https://github.com/AlexanderWillner/MailboxCleanup
                 filename = file_struct[0].decode(encoding)
             else:
                 filename = file_struct[0]
+        filename = filename.replace("\r","").replace("\n","")
 
         return MailboxCleanerMessage.slugify_filename(filename)

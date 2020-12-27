@@ -8,3 +8,4 @@ flake8-polyfill==1.0.2
 python-coveralls==2.9.3
 configparser==5.0.1
 emlx==1.0.0
+darkdetect=0.1.1

@@ -45,8 +45,8 @@ def handle_arguments() -> argparse.ArgumentParser:
     parser.add_argument("-r", "--read-only",
                         help="read-only mode for the imap server",
                         action='store_true')
-    parser.add_argument("-m", "--max-size",
-                        help="max attachment size in KB",
+    parser.add_argument("-m", "--min-size",
+                        help="min attachment size in KB",
                         default=200, type=int)
     parser.add_argument("-f", "--folder",
                         help="imap folder to process", default="Inbox")
@@ -98,7 +98,7 @@ def main():
         logging.warning('Detach\t\t: %s', args.detach)
         logging.warning('Cache Enabled\t: %s', not args.reset_cache)
         logging.warning('Download\t: %s', not args.skip_download)
-        logging.warning('Max Size\t: %s KB', args.max_size)
+        logging.warning('Min Size\t: %s KB', args.min_size)
         logging.warning('Target\t\t: %s', args.target)
         logging.warning('Upload\t\t: %s', args.upload)
         logging.warning('All Folders\t: %s', args.all)

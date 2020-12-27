@@ -121,17 +121,26 @@ class MailboxCleanerIMAP():
         """Iterate over mails in configured folders."""
 
         folders = self.get_folders()
+        self.stopped = False
 
         # Iterate over each folder
         for i, folder in enumerate(folders, start=1):
 
+            # For threaded environments
+            if self.stopped: break
+
             # Get all mails in this folder
+            if hasattr(self.args, 'logger'):
+                self.args.logger.log_progress_folders(i, len(folders), folder)
             logging.info('Progress\t: %s / %s (folders)', i, len(folders))
             logging.warning('Folder\t\t: %s (started)', folder)
             msg_uids = self.get_msgs_from_folder(folder)
 
             # Iterate over each email
             for j, msg_uid in enumerate(msg_uids, start=1):
+                
+                # For threaded environments
+                if self.stopped: break
 
                 # Skip if already in cache
                 logging.info('Progress\t: %s / %s (mail uid: %s)',
@@ -139,6 +148,8 @@ class MailboxCleanerIMAP():
                 if msg_uid in self.cache:
                     logging.info('  Subject\t: %s (cached)',
                                  self.cache[msg_uid])
+                    if hasattr(self.args, 'logger'):
+                        self.args.logger.log_progress_mails(j, len(msg_uids), self.cache[msg_uid])
                     continue
 
                 # Get the actual email
@@ -149,6 +160,8 @@ class MailboxCleanerIMAP():
                     continue
                 subject = self.message.get_subject(msg)
                 logging.info('  Subject\t: %s', subject)
+                if hasattr(self.args, 'logger'):
+                    self.args.logger.log_progress_mails(j, len(msg_uids), subject)
 
                 # Download and detach attachments from email
                 modified = self.message.download_and_detach_attachments(msg)
