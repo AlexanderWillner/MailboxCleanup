@@ -109,6 +109,7 @@ Tool: https://github.com/AlexanderWillner/MailboxCleanup
             logging.debug('      Downl.\t: To "%s"', file_temp.name)
             payload = part.get_payload(decode=True)
             file_temp.write(payload)
+            file_temp.flush()
             target = self._copy_file(file_temp.name, file_attached, date)
 
         return target
