@@ -352,6 +352,7 @@ class MailboxCleanerIMAP():
         # Create new cache if needed
         if not os.path.exists(self.cache_file) or\
            self.args.reset_cache:
+            os.mkdir(os.path.dirname(self.cache_file))
             self._save_cache()
 
         with open(self.cache_file, 'rb') as filepointer:
@@ -359,6 +360,6 @@ class MailboxCleanerIMAP():
 
     def _save_cache(self):
         """Save cache of processed mail UIDs with their subjects."""
-
+            
         with open(self.cache_file, 'wb+') as filepointer:
             pickle.dump(self.cache, filepointer, pickle.HIGHEST_PROTOCOL)
