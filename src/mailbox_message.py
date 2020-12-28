@@ -46,7 +46,7 @@ The attachment was stored using the file name: "%(newfile)s".
 The original file name was: "%(filename)s".
 The original size was: %(size)d KB.
 The original type was: %(type)s.
-Tool: https://github.com/AlexanderWillner/MailboxCleanup
+Tool: https://mailboxcleanup.netcee.de
 ===========================================================
 """
 
