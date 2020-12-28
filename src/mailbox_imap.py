@@ -120,7 +120,7 @@ class MailboxCleanerIMAP():
         """Iterate over mails from a local directory for upload."""
         self.message.process_directory(self.upload)
 
-    def process_folders(self):
+    def process_folders(self):  # noqa: C901
         """Iterate over mails in configured folders."""
 
         folders = self.get_folders()
@@ -361,7 +361,7 @@ class MailboxCleanerIMAP():
     def _save_cache(self):
         """Save cache of processed mail UIDs with their subjects."""
 
-        if not os.path.exists(self.cache_file):
+        if not os.path.exists(os.path.dirname(self.cache_file)):
             os.mkdir(os.path.dirname(self.cache_file))
         with open(self.cache_file, 'wb+') as filepointer:
             pickle.dump(self.cache, filepointer, pickle.HIGHEST_PROTOCOL)
