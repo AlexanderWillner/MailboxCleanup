@@ -283,6 +283,6 @@ Tool: https://github.com/AlexanderWillner/MailboxCleanup
                 filename = file_struct[0].decode(encoding)
             else:
                 filename = file_struct[0]
-        filename = filename.replace("\r","").replace("\n","")
+        filename = filename.replace("\r", "").replace("\n", "")
 
         return MailboxCleanerMessage.slugify_filename(filename)

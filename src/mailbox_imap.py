@@ -8,6 +8,7 @@ from e-mails on IMAP servers.
 
 from __future__ import print_function
 
+import re
 import email
 import email.mime.text
 import email.utils
@@ -57,8 +58,9 @@ class MailboxCleanerIMAP():
         self.args = args
         self.message = MailboxCleanerMessage(args)
         self.cache = collections.OrderedDict()
-        self.cache_file = args.server + '_cache.pkl'
+        self.cache_file = os.path.join(self.args.target, '_cache-' + args.server + '.pkl')
         self.imap: imaplib.IMAP4_SSL = imap
+        self.stopped: bool = False
 
     def cleanup(self):
         """Cleanup after error."""
@@ -127,7 +129,8 @@ class MailboxCleanerIMAP():
         for i, folder in enumerate(folders, start=1):
 
             # For threaded environments
-            if self.stopped: break
+            if self.stopped:
+                break
 
             # Get all mails in this folder
             if hasattr(self.args, 'logger'):
@@ -138,9 +141,10 @@ class MailboxCleanerIMAP():
 
             # Iterate over each email
             for j, msg_uid in enumerate(msg_uids, start=1):
-                
+
                 # For threaded environments
-                if self.stopped: break
+                if self.stopped:
+                    break
 
                 # Skip if already in cache
                 logging.info('Progress\t: %s / %s (mail uid: %s)',
@@ -149,7 +153,8 @@ class MailboxCleanerIMAP():
                     logging.info('  Subject\t: %s (cached)',
                                  self.cache[msg_uid])
                     if hasattr(self.args, 'logger'):
-                        self.args.logger.log_progress_mails(j, len(msg_uids), self.cache[msg_uid])
+                        self.args.logger.log_progress_mails(
+                            j, len(msg_uids), self.cache[msg_uid])
                     continue
 
                 # Get the actual email
@@ -161,7 +166,8 @@ class MailboxCleanerIMAP():
                 subject = self.message.get_subject(msg)
                 logging.info('  Subject\t: %s', subject)
                 if hasattr(self.args, 'logger'):
-                    self.args.logger.log_progress_mails(j, len(msg_uids), subject)
+                    self.args.logger.log_progress_mails(
+                        j, len(msg_uids), subject)
 
                 # Download and detach attachments from email
                 modified = self.message.download_and_detach_attachments(msg)
@@ -290,8 +296,8 @@ class MailboxCleanerIMAP():
         res, folder_list = self.imap.list()
         logging.warning('Folders (#)\t: %s (%s)', res, len(folder_list))
 
-        folders = [item.decode().split('"/"')[-1].strip()
-                   for item in folder_list]
+        folders = [re.split('"."|"/"', item.decode())[-1].strip()
+                   for item in folder_list]        
 
         if not self.args.all:
             if self.args.folder.lower() not in map(str.lower, folders):
