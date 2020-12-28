@@ -8,3 +8,6 @@ ignore_errors = True
 omit = 
     */__init__.py
     setup.py
+    src/appstore.py
+    src/mailbox_gui.py
+
