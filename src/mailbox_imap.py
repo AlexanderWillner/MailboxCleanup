@@ -58,7 +58,8 @@ class MailboxCleanerIMAP():
         self.args = args
         self.message = MailboxCleanerMessage(args)
         self.cache = collections.OrderedDict()
-        self.cache_file = os.path.join(self.args.target, '_cache-' + args.server + '.pkl')
+        self.cache_file = os.path.join(
+            self.args.target, '_cache-' + args.server + '.pkl')
         self.imap: imaplib.IMAP4_SSL = imap
         self.stopped: bool = False
 
@@ -297,7 +298,7 @@ class MailboxCleanerIMAP():
         logging.warning('Folders (#)\t: %s (%s)', res, len(folder_list))
 
         folders = [re.split('"."|"/"', item.decode())[-1].strip()
-                   for item in folder_list]        
+                   for item in folder_list]
 
         if not self.args.all:
             if self.args.folder.lower() not in map(str.lower, folders):
@@ -352,7 +353,6 @@ class MailboxCleanerIMAP():
         # Create new cache if needed
         if not os.path.exists(self.cache_file) or\
            self.args.reset_cache:
-            os.mkdir(os.path.dirname(self.cache_file))
             self._save_cache()
 
         with open(self.cache_file, 'rb') as filepointer:
@@ -360,6 +360,8 @@ class MailboxCleanerIMAP():
 
     def _save_cache(self):
         """Save cache of processed mail UIDs with their subjects."""
-            
+
+        if not os.path.exists(self.cache_file):
+            os.mkdir(os.path.dirname(self.cache_file))
         with open(self.cache_file, 'wb+') as filepointer:
             pickle.dump(self.cache, filepointer, pickle.HIGHEST_PROTOCOL)
