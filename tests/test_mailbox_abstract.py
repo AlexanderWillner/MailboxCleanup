@@ -26,7 +26,7 @@ class TestMailboxAbstract(unittest.TestCase):
                                     user='test',
                                     password='test',
                                     all=True,
-                                    max_size=20,
+                                    min_size=20,
                                     skip_download=False,
                                     read_only=False,
                                     detach=True,
