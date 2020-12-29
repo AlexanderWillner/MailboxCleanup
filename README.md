@@ -1,6 +1,6 @@
 # Remove Attachments from E-Mails
 
-This module can be used to strip / detach / remove attachments from e-mails on IMAP servers. This includes downloading attachments, removing them on the server and uploading stripped from from local archives.
+This module can be used to strip / detach / remove attachments from e-mails on IMAP servers. This includes downloading attachments, removing them on the server and uploading stripped ones from local archives.
 
 ![GitHub CodeQL](https://github.com/AlexanderWillner/MailboxCleanup/workflows/CodeQL/badge.svg)
 [![GitHub Build](https://github.com/AlexanderWillner/MailboxCleanup/workflows/Build-Test/badge.svg)](https://github.com/AlexanderWillner/MailboxCleanup/actions?query=workflow%3ABuild-Test)
