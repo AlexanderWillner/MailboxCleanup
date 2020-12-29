@@ -14,6 +14,18 @@ This module can be used to strip / detach / remove attachments from e-mails on I
 
 We all receive dozens and hundreds of new e-mail messages every day. Some of them even contain large attachments. The storage capacity on servers, however, are often limited. Deleting entire e-mails is often not an option, removing single attachments manually is time consuming and storing file locally is not optimal. With this script you can iterate over all e-mails in your inbox or within all folders, download the attachments locally and remove the attachments from the e-mails remotely. The script has been tested with Google Mail and Exchange servers with tens of thousands of e-mails and extracted thousands of attachments / multiple gigabytes in this process (incl. checking for duplicates, checking attachment hash key, setting file modification times, ...). As a result it is now possible to archive e-mails from many, many years on IMAP servers without exceeding mail server space limitations. Contributions and feedback are always welcome.
 
+![overview](https://mailboxcleanup.netcee.de/images/MailboxCleanup-Start-Dark.png)
+
+## Installation
+
+To safe time and to support the development, consider to buy the pre-compiled binary with a nice GUI from the AppStore ([Website](https://mailboxcleanup.netcee.de)):
+
+[![AppStore](https://mailboxcleanup.netcee.de/images/download_appstore-black.png)](https://apps.apple.com/de/app/mailboxcleanup/id1546570942?l=en&mt=12&UO=MailboxCleanup.app)
+
+![AppStore Setup](https://mailboxcleanup.netcee.de/images/MailboxCleanup-AppStore-Setup.jpg)
+
+Otherwise, just clone or download this repository and use the sources directly.
+
 ## Usage
 
 You can run the command via `./bin/mailbox_cleaner`.
