@@ -1,6 +1,6 @@
 -include appstore/Makefile
 
-VERSION=1.0.1
+VERSION=1.0.2
 SRC_CORE=src
 SRC_TEST=tests
 PYTHON=python3
