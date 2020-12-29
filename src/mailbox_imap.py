@@ -190,7 +190,7 @@ class MailboxCleanerIMAP():
             return
 
         # Upload new message
-        status, data = self.upload(msg, msg_flags)
+        status, data = self.upload(msg, folder, msg_flags)
 
         # Delete old message
         if status == 'OK' and self.args.read_only is False:
@@ -212,7 +212,7 @@ class MailboxCleanerIMAP():
         else:
             logging.warning('    Result\t: %s (%s)', status, data)
 
-    def upload(self, msg, msg_flags='\\Seen'):
+    def upload(self, msg, folder, msg_flags='\\Seen'):
         """Upload message to server."""
 
         # Knowing what's going on
@@ -237,7 +237,7 @@ class MailboxCleanerIMAP():
             return ('Duplicate', '')
 
         status, data = self.imap.append(
-            self.args.folder, msg_flags, msg_date, msg.as_string().encode())
+            folder, msg_flags, msg_date, msg.as_string().encode())
         if status == "OK":
             logging.warning('    Success\t: %s', status)
             self.cache[msg_uid] = msg_subject
