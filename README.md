@@ -32,30 +32,30 @@ You can run the command via `./bin/mailbox_cleaner`.
 
 ```shell
 $ ./bin/mailbox_cleaner --help
-usage: mailbox_cleaner.py [-h] [-a] [-d] [-k] [-c] [-r] [-m MIN_SIZE] [-f FOLDER] [-l UPLOAD] [-t TARGET] -s SERVER -u USER [-o PORT] -p PASSWORD [-v] [--version]
+usage: mailbox_cli.py [-h] [-a] [-d] [-k] [-c] [-r] [-m MIN_SIZE] [-f FOLDER] [-l UPLOAD] [-t TARGET] -s SERVER -u USER [-o PORT] -p PASSWORD [-v] [--version]
 
 optional arguments:
   -h, --help            show this help message and exit
-  -a, --all             iterate over all folders
-  -d, --detach          remove attachments
-  -k, --skip-download   don't download attachments
-  -c, --reset-cache     reset cache
-  -r, --read-only       read-only mode for the imap server
+  -a, --all             iterate over all folders (default: False)
+  -d, --detach          remove attachments (default: False)
+  -k, --skip-download   don't download attachments (default: False)
+  -c, --reset-cache     reset cache (default: False)
+  -r, --read-only       read-only mode for the imap server (default: False)
   -m MIN_SIZE, --min-size MIN_SIZE
-                        min attachment size in KB
+                        min attachment size in KB (default: 2000)
   -f FOLDER, --folder FOLDER
-                        imap folder to process
+                        imap folder to process (default: Inbox)
   -l UPLOAD, --upload UPLOAD
-                        local folder with messages to upload
+                        local folder with messages to upload (default: None)
   -t TARGET, --target TARGET
-                        download attachments to this local folder
+                        download attachments to this local folder (default: attachments)
   -s SERVER, --server SERVER
-                        imap server
-  -u USER, --user USER  imap user
-  -o PORT, --port PORT  imap port
+                        imap server (default: None)
+  -u USER, --user USER  imap user (default: None)
+  -o PORT, --port PORT  imap port (default: None)
   -p PASSWORD, --password PASSWORD
-                        imap user
-  -v, --verbose         be more verbose (-v, -vv)
+                        imap user (default: None)
+  -v, --verbose         be more verbose (-v, -vv) (default: 0)
   --version             show program's version number and exit
 ```
 

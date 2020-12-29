@@ -29,7 +29,8 @@ __status__ = "Development"
 def handle_arguments() -> argparse.ArgumentParser:
     """Provide CLI handler for application."""
 
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("-a", "--all",
                         help="iterate over all folders",
                         action='store_true')
@@ -47,7 +48,7 @@ def handle_arguments() -> argparse.ArgumentParser:
                         action='store_true')
     parser.add_argument("-m", "--min-size",
                         help="min attachment size in KB",
-                        default=200, type=int)
+                        default=2000, type=int)
     parser.add_argument("-f", "--folder",
                         help="imap folder to process", default="Inbox")
     parser.add_argument("-l", "--upload",
