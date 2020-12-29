@@ -134,7 +134,8 @@ Tool: https://mailboxcleanup.netcee.de
                 if iterator == 0:
                     logging.debug(
                         '      Conflict\t: Resolving same file / other hash..')
-                target = self._copy_file(source, target_name, date, iterator + 1)
+                target = self._copy_file(source, target_name, date,
+                                         iterator + 1)
             else:
                 logging.debug('      Moving\t: Already exists (same hash)')
 
