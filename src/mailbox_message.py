@@ -108,6 +108,8 @@ Tool: https://mailboxcleanup.netcee.de
                          file_attached, part.get_content_maintype())
             logging.debug('      Downl.\t: To "%s"', file_temp.name)
             payload = part.get_payload(decode=True)
+            if payload is None:
+                return None
             file_temp.write(payload)
             file_temp.flush()
             target = self._copy_file(file_temp.name, file_attached, date)
