@@ -196,7 +196,7 @@ Tool: https://mailboxcleanup.netcee.de
         msg_size = len(str(msg)) / 1024
         msg_type = msg.get_content_disposition()
 
-        logging.debug('      Detaching\t: %s', msg_filename)
+        logging.debug('      Detaching\t: %s (saved as %s)', msg_filename, target)
 
         # Remove some old headers
         del msg['Content-Transfer-Encoding']
