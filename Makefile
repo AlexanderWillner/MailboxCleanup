@@ -1,6 +1,6 @@
 -include appstore/Makefile
 
-VERSION=1.0.0.dev0
+VERSION=1.0.1
 SRC_CORE=src
 SRC_TEST=tests
 PYTHON=python3
@@ -82,3 +82,8 @@ feedback:
 
 commit: test auto-style lint
 	@git status
+
+version:
+	@read -p "Press CTRL+C to NOT making release $(VERSION)..."
+	@sed -i '' 's/VERSION = ".*"/VERSION = "'$(VERSION)'"/g' appstore/setup.py
+	@find src/ -type f -iname "*.py" -execdir sed -i '' 's/__version__ = ".*"/__version__ = "'$(VERSION)'"/g' {} \;
