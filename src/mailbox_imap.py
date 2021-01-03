@@ -165,7 +165,9 @@ class MailboxCleanerIMAP():
                     msg, msg_flags = self.get_msg(msg_uid)
                 except imaplib.IMAP4.error as error:
                     try:
-                        logging.info('  Error\t\t: Message %s (%s). Logging in again.', msg_uid, error)
+                        logging.info(
+                            '  Error\t\t: Message %s (%s). Logging in again.',
+                            msg_uid, error)
                         self.logout()
                         self.login()
                         self.imap.select(folder, readonly=self.args.read_only)
