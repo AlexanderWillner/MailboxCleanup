@@ -28,7 +28,7 @@ __copyright__ = "Copyright 2020, Alexander Willner"
 __credits__ = ["github.com/guido4000",
                "github.com/halteproblem", "github.com/jamesridgway"]
 __license__ = "MIT"
-__version__ = "1.0.3"
+__version__ = "1.0.4"
 __maintainer__ = "Alexander Willner"
 __email__ = "alex@willner.ws"
 __status__ = "Development"
