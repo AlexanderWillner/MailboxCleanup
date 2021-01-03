@@ -98,6 +98,8 @@ class MailboxCleanerIMAP():
         except (AttributeError, imaplib.IMAP4.error):
             pass
 
+        self.imap = None
+
     def does_msg_exist(self, msg) -> bool:
         """Check if message is already on the server."""
 
@@ -161,9 +163,17 @@ class MailboxCleanerIMAP():
                 # Get the actual email
                 try:
                     msg, msg_flags = self.get_msg(msg_uid)
-                except imaplib.IMAP4.error:
-                    logging.info('  Error\t: Message %s skipped', msg_uid)
-                    continue
+                except imaplib.IMAP4.error as error:
+                    try:
+                        logging.info('  Error\t\t: Message %s (%s). Logging in again.', msg_uid, error)
+                        self.logout()
+                        self.login()
+                        self.imap.select(folder, readonly=self.args.read_only)
+                        msg, msg_flags = self.get_msg(msg_uid)
+                    except imaplib.IMAP4.error:
+                        logging.info('  Error\t: Message %s skipped', msg_uid)
+                        continue
+
                 subject = self.message.get_subject(msg)
                 logging.info('  Subject\t: %s', subject)
                 if hasattr(self.args, 'logger'):
