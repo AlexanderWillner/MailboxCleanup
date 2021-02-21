@@ -74,7 +74,7 @@ class TestMailboxMessage(TestMailboxAbstract, unittest.TestCase):
         cleaner = MailboxCleanerMessage(self.args)
         cleaner.process_directory(self._void)
 
-    def _void(self, _param):
+    def _void(self, _param, _param2):
         """Helper function for testing."""
 
 
