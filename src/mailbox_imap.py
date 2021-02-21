@@ -104,7 +104,9 @@ class MailboxCleanerIMAP():
         """Check if message is already on the server."""
 
         msg_uid = self.message.get_uid(msg)
-        self.imap.select(self.args.folder, readonly=self.args.read_only)
+        status, error = self.imap.select(self.args.folder, readonly=self.args.read_only)
+        if status != "OK":
+            raise imaplib.IMAP4.error('Could not select folder: %s' % error)
         status, data = self.imap.uid('SEARCH', None,
                                      '(HEADER Message-ID "%s") UNDELETED'
                                      % msg_uid)
@@ -120,7 +122,7 @@ class MailboxCleanerIMAP():
 
     def process_directory(self):
         """Iterate over mails from a local directory for upload."""
-        self.message.process_directory(self.upload)
+        self.message.process_directory(self.upload, cache=self.cache)
 
     def process_folders(self):  # noqa: C901
         """Iterate over mails in configured folders."""
@@ -190,6 +192,8 @@ class MailboxCleanerIMAP():
                     self.replace_msg(msg, msg_flags, msg_uid, folder)
 
                 self.cache[msg_uid] = subject
+                if j % 10 == 0:
+                    self._save_cache()
 
             logging.warning('Folder\t\t: %s (completed)', folder)
 
@@ -228,14 +232,19 @@ class MailboxCleanerIMAP():
         """Upload message to server."""
 
         # Knowing what's going on
-        msg_date = self.convert_date(msg.get('date'))
-        msg_subject = self.message.get_subject(msg)
-        msg_uid = self.message.get_uid(msg)
+        try:
+            msg_date = self.convert_date(msg.get('date'))
+            msg_subject = self.message.get_subject(msg)
+            msg_uid = self.message.get_uid(msg)
+        except TypeError as error:
+            status = "Error"
+            data = error
+            logging.warning('    Error\t: %s, %s', status, data)
+            return status, data
+
         if self.args.read_only:
             logging.warning('    Uploading\t: skipped (read-only)')
             return ('Read Only', '')
-
-        logging.debug('    Uploading\t: %s / %s', msg_date, msg_flags)
 
         # Check cache
         msg_uid = self.message.get_uid(msg)
@@ -248,13 +257,21 @@ class MailboxCleanerIMAP():
             self.cache[msg_uid] = msg_subject
             return ('Duplicate', '')
 
-        status, data = self.imap.append(
-            folder, msg_flags, msg_date, msg.as_string().encode())
-        if status == "OK":
-            logging.warning('    Success\t: %s', status)
-            self.cache[msg_uid] = msg_subject
-        else:
-            logging.warning('    Return\t\t: %s, %s', status, data)
+        logging.debug('    Uploading\t: %s / %s', msg_date, msg_flags)
+
+        try:
+            status, data = self.imap.append(
+                folder, msg_flags, msg_date, msg.as_string().encode())
+            if status == "OK":
+                logging.warning('    Success\t: %s', status)
+                self.cache[msg_uid] = msg_subject
+            else:
+                logging.warning('    Error\t: %s, %s (in %s)', status, data, folder)
+        except imaplib.IMAP4.abort as error:
+            status = "Error"
+            data = error
+            self.logout()
+            self.login()
 
         return status, data
 
@@ -375,5 +392,6 @@ class MailboxCleanerIMAP():
 
         if not os.path.exists(os.path.dirname(self.cache_file)):
             os.mkdir(os.path.dirname(self.cache_file))
+            print("Cache folder created")
         with open(self.cache_file, 'wb+') as filepointer:
             pickle.dump(self.cache, filepointer, pickle.HIGHEST_PROTOCOL)
