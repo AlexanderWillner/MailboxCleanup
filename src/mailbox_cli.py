@@ -103,6 +103,7 @@ def main():
         logging.warning('Target\t\t: %s', args.target)
         logging.warning('Upload\t\t: %s', args.upload)
         logging.warning('All Folders\t: %s', args.all)
+        logging.warning('Cache\t\t: %s', imap.cache_file)
 
         if args.upload:
             imap.process_directory()
