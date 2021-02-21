@@ -79,8 +79,8 @@ Tool: https://mailboxcleanup.netcee.de
         """Only process certain types and sizes of attachments."""
         msg_size = len(str(part)) / 1024
         logging.debug('    Part\t: %d KB / %d KB (type: %s)',
-                    msg_size, self.args.min_size,
-                    part.get_content_maintype())
+                      msg_size, self.args.min_size,
+                      part.get_content_maintype())
 
         non_detachable = part.get_content_maintype() == 'multipart' or \
             part.get('Content-Disposition') is None or \
@@ -88,7 +88,6 @@ Tool: https://mailboxcleanup.netcee.de
         logging.debug('    Non-Det.\t: %s', non_detachable)
 
         return non_detachable
-
 
     def download_attachment(self, part, date) -> str:
         """Download the attachment from a part of an email."""
@@ -173,7 +172,9 @@ Tool: https://mailboxcleanup.netcee.de
 
             logging.warning('Files\t\t: %d / %d', i, len(filenames))
 
-            with open(filename, encoding="utf8", errors="surrogateescape") as filepointer:
+            with open(filename,
+                      encoding="utf8",
+                      errors="surrogateescape") as filepointer:
                 # Specific handling of emlx files
                 if filename.lower().endswith(".emlx"):
                     msg = src.emlx2eml.parse_emlx(filename)
@@ -183,12 +184,13 @@ Tool: https://mailboxcleanup.netcee.de
                 # Logging
                 msg_subject = self.get_subject(msg)
                 msg_uid = self.get_uid(msg)
-                logging.warning('    File\t: %s (%s: %s)', filename, msg_uid, msg_subject)
+                logging.warning('    File\t: %s (%s: %s)',
+                                filename, msg_uid, msg_subject)
                 if cache is not None and msg_uid in cache:
                     logging.warning('    Cache\t: OK')
                     continue
-                else:
-                    logging.warning('    Cache\t: MISS')
+
+                logging.warning('    Cache\t: MISS')
 
                 try:
                     # Remove attachments
@@ -197,7 +199,7 @@ Tool: https://mailboxcleanup.netcee.de
                     # Post process message (e.g. upload or save it)
                     handler(msg, self.args.folder)
                 except (KeyError, UnicodeEncodeError) as error:
-                    logging.debug('      Error\t: %s (in %s)' % (error, filename))
+                    logging.debug('      Error\t: %s (in %s)', error, filename)
 
     @staticmethod
     def detach_attachment(msg, target):
@@ -265,7 +267,8 @@ Tool: https://mailboxcleanup.netcee.de
             subject = subject.decode(encoding, errors='replace')\
                 if hasattr(subject, 'decode') else subject
         except LookupError as error:
-            logging.debug('      Error\t: decoding subject (%s) with encoding (%s): %s', subject, encoding, error)
+            logging.debug('      Error\t: decoding (%s) with (%s): %s',
+                          subject, encoding, error)
             subject = subject.decode('ascii', 'replace')
         subject = subject[:75] + (subject[75:] and '...')
         subject = subject.replace('\r\n', '')

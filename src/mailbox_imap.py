@@ -104,7 +104,8 @@ class MailboxCleanerIMAP():
         """Check if message is already on the server."""
 
         msg_uid = self.message.get_uid(msg)
-        status, error = self.imap.select(self.args.folder, readonly=self.args.read_only)
+        status, error = self.imap.select(
+            self.args.folder, readonly=self.args.read_only)
         if status != "OK":
             raise imaplib.IMAP4.error('Could not select folder: %s' % error)
         status, data = self.imap.uid('SEARCH', None,
@@ -266,7 +267,8 @@ class MailboxCleanerIMAP():
                 logging.warning('    Success\t: %s', status)
                 self.cache[msg_uid] = msg_subject
             else:
-                logging.warning('    Error\t: %s, %s (in %s)', status, data, folder)
+                logging.warning('    Error\t: %s, %s (in %s)',
+                                status, data, folder)
         except imaplib.IMAP4.abort as error:
             status = "Error"
             data = error
