@@ -77,15 +77,18 @@ Tool: https://mailboxcleanup.netcee.de
 
     def is_non_detachable_part(self, part):
         """Only process certain types and sizes of attachments."""
-
         msg_size = len(str(part)) / 1024
         logging.debug('    Part\t: %d KB / %d KB (type: %s)',
-                      msg_size, self.args.min_size,
-                      part.get_content_maintype())
+                    msg_size, self.args.min_size,
+                    part.get_content_maintype())
 
-        return part.get_content_maintype() == 'multipart' or \
+        non_detachable = part.get_content_maintype() == 'multipart' or \
             part.get('Content-Disposition') is None or \
             msg_size <= self.args.min_size
+        logging.debug('    Non-Det.\t: %s', non_detachable)
+
+        return non_detachable
+
 
     def download_attachment(self, part, date) -> str:
         """Download the attachment from a part of an email."""
@@ -143,7 +146,7 @@ Tool: https://mailboxcleanup.netcee.de
 
         return target
 
-    def process_directory(self, handler, folder=None):
+    def process_directory(self, handler, folder=None, cache=None):
         """Upload messages from a local directory."""
 
         source = self.args.upload if folder is None else folder
@@ -161,7 +164,7 @@ Tool: https://mailboxcleanup.netcee.de
 
             # Recursive walker
             if os.path.isdir(filename):
-                self.process_directory(handler, filename)
+                self.process_directory(handler, filename, cache)
 
             # Only take eml files into account
             if not filename.lower().endswith(".eml") and\
@@ -170,7 +173,7 @@ Tool: https://mailboxcleanup.netcee.de
 
             logging.warning('Files\t\t: %d / %d', i, len(filenames))
 
-            with open(filename) as filepointer:
+            with open(filename, encoding="utf8", errors="surrogateescape") as filepointer:
                 # Specific handling of emlx files
                 if filename.lower().endswith(".emlx"):
                     msg = src.emlx2eml.parse_emlx(filename)
@@ -179,13 +182,22 @@ Tool: https://mailboxcleanup.netcee.de
 
                 # Logging
                 msg_subject = self.get_subject(msg)
-                logging.warning('    File\t: %s (%s)', filename, msg_subject)
+                msg_uid = self.get_uid(msg)
+                logging.warning('    File\t: %s (%s: %s)', filename, msg_uid, msg_subject)
+                if cache is not None and msg_uid in cache:
+                    logging.warning('    Cache\t: OK')
+                    continue
+                else:
+                    logging.warning('    Cache\t: MISS')
 
-                # Remove attachments
-                self.download_and_detach_attachments(msg)
+                try:
+                    # Remove attachments
+                    self.download_and_detach_attachments(msg)
 
-                # Post process message (e.g. upload or save it)
-                handler(msg)
+                    # Post process message (e.g. upload or save it)
+                    handler(msg, self.args.folder)
+                except (KeyError, UnicodeEncodeError) as error:
+                    logging.debug('      Error\t: %s (in %s)' % (error, filename))
 
     @staticmethod
     def detach_attachment(msg, target):
@@ -234,7 +246,8 @@ Tool: https://mailboxcleanup.netcee.de
         """Get UID of message."""
 
         parser = HeaderParser()
-        header = parser.parsestr(message.as_string())
+        msg = message.as_string()
+        header = parser.parsestr(msg)
         uid = email.utils.parseaddr(header['message-id'])
         return uid[1]
 
@@ -248,8 +261,12 @@ Tool: https://mailboxcleanup.netcee.de
             subject = "unknown"  # very rarely messages have no subject
         subject, encoding = email.header.decode_header(subject)[0]
         encoding = 'utf-8' if encoding is None else encoding
-        subject = subject.decode(encoding, errors='replace')\
-            if hasattr(subject, 'decode') else subject
+        try:
+            subject = subject.decode(encoding, errors='replace')\
+                if hasattr(subject, 'decode') else subject
+        except LookupError as error:
+            logging.debug('      Error\t: decoding subject (%s) with encoding (%s): %s', subject, encoding, error)
+            subject = subject.decode('ascii', 'replace')
         subject = subject[:75] + (subject[75:] and '...')
         subject = subject.replace('\r\n', '')
         subject = subject.replace('\t', ' ')
