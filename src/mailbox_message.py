@@ -247,29 +247,36 @@ Tool: https://mailboxcleanup.netcee.de
     def get_uid(message) -> str:
         """Get UID of message."""
 
-        parser = HeaderParser()
-        msg = message.as_string()
-        header = parser.parsestr(msg)
-        uid = email.utils.parseaddr(header['message-id'])
-        return uid[1]
+        uid = MailboxCleanerMessage.get_header(message, 'message-id')
+        uid = email.utils.parseaddr(uid)[1]
+
+        return uid
+
+    @staticmethod
+    def get_header(message, header: str) -> str:
+        """Get a header field."""
+
+        if header in message:
+            item = message[header]
+        else:
+            item = ""
+        item, encoding = email.header.decode_header(item)[0]
+        encoding = 'utf-8' if encoding is None else encoding
+        try:
+            item = item.decode(encoding, errors='replace')\
+                if hasattr(item, 'decode') else item
+        except LookupError as error:
+            logging.debug('      Error\t: decoding (%s) with (%s): %s',
+                          item, encoding, error)
+            item = item.decode('ascii', 'replace')
+
+        return item
 
     @staticmethod
     def get_subject(message) -> str:
         """Get shortened message subject for visualization."""
 
-        if 'subject' in message:
-            subject = message['subject']
-        else:
-            subject = "unknown"  # very rarely messages have no subject
-        subject, encoding = email.header.decode_header(subject)[0]
-        encoding = 'utf-8' if encoding is None else encoding
-        try:
-            subject = subject.decode(encoding, errors='replace')\
-                if hasattr(subject, 'decode') else subject
-        except LookupError as error:
-            logging.debug('      Error\t: decoding (%s) with (%s): %s',
-                          subject, encoding, error)
-            subject = subject.decode('ascii', 'replace')
+        subject = MailboxCleanerMessage.get_header(message, 'subject')
         subject = subject[:75] + (subject[75:] and '...')
         subject = subject.replace('\r\n', '')
         subject = subject.replace('\t', ' ')
