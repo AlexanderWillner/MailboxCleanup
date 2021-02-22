@@ -11,7 +11,6 @@ from __future__ import print_function
 import email
 import email.mime.text
 import email.utils
-from email.parser import HeaderParser
 import hashlib
 import logging
 import os.path
