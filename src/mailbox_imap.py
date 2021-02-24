@@ -75,6 +75,8 @@ class MailboxCleanerIMAP():
             if self.imap is None:
                 self.imap = imaplib.IMAP4_SSL(self.args.server)
             self.imap.login(self.args.user, self.args.password)
+            self.imap.socket().setsockopt(socket.IPPROTO_TCP,
+                                          socket.TCP_NODELAY, 1)
             self._load_cache()
         except socket.gaierror as error:
             raise SystemExit('Login failed (wrong server?): %s' %
@@ -104,20 +106,24 @@ class MailboxCleanerIMAP():
         """Check if message is already on the server."""
 
         msg_uid = self.message.get_uid(msg)
-        status, error = self.imap.select(
-            self.args.folder, readonly=self.args.read_only)
-        if status != "OK":
-            raise imaplib.IMAP4.error('Could not select folder: %s' % error)
-        status, data = self.imap.uid('SEARCH', None,
-                                     '(HEADER Message-ID "%s") UNDELETED'
-                                     % msg_uid)
-
-        if data is not None and\
-           len(data[0]) > 0 and\
-           self.args.upload is not None:
-            logging.warning('    Duplicate\t: %s', status)
-            self.cache[msg_uid] = self.message.get_subject(msg_uid)
-            return True
+        for _attempt in range(2):  # don't select folder in every single check
+            try:
+                status, data = self.imap.uid(
+                    'SEARCH', None,
+                    '(UNDELETED HEADER Message-ID "%s")' % msg_uid)
+                if data is not None and\
+                        len(data[0]) > 0 and\
+                        self.args.upload is not None:
+                    logging.warning('    Duplicate\t: %s', status)
+                    self.cache[msg_uid] = self.message.get_subject(msg_uid)
+                    return True
+            except imaplib.IMAP4.error as error:
+                status, error = self.imap.select(
+                    self.args.folder, readonly=self.args.read_only)
+                if status != "OK":
+                    raise imaplib.IMAP4.error(
+                        'Could not select folder: %s' % error) from error
+            break
 
         return False
 
