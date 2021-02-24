@@ -21,12 +21,9 @@ class TestMailboxCleanerIMAP(TestMailboxAbstract, unittest.TestCase):
                 self.msg = email.message_from_file(filepointer)
 
         @staticmethod
-        def setsockopt(_a, _b, _c):
-            pass
-
-        @staticmethod
         def socket():
-            return TestMailboxCleanerIMAP._ImapMockup
+            """Mocking socket."""
+            return type("_", (__class__, object), {"setsockopt": lambda _a, _b, _c: None })
 
         @staticmethod
         def login(user=None, _password=None):
