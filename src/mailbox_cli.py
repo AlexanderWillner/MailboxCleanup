@@ -25,6 +25,8 @@ __maintainer__ = "Alexander Willner"
 __email__ = "alex@willner.ws"
 __status__ = "Development"
 
+RETRIES: int = 10
+
 
 def handle_arguments() -> argparse.ArgumentParser:
     """Provide CLI handler for application."""
@@ -91,29 +93,34 @@ def main():
         args.upload) if args.upload is not None else None
     imap = MailboxCleanerIMAP(args)
 
-    # todo: repeat here a couple of times  pylint: disable=W0511
-    try:
-        imap.login()
-        logging.warning('Server\t\t: %s@%s', args.user, args.server)
-        logging.warning('Read Only\t: %s', args.read_only)
-        logging.warning('Detach\t\t: %s', args.detach)
-        logging.warning('Cache Enabled\t: %s', not args.reset_cache)
-        logging.warning('Download\t: %s', not args.skip_download)
-        logging.warning('Min Size\t: %s KB', args.min_size)
-        logging.warning('Target\t\t: %s', args.target)
-        logging.warning('Upload\t\t: %s', args.upload)
-        logging.warning('All Folders\t: %s', args.all)
-        logging.warning('Cache\t\t: %s', imap.cache_file)
+    for _ in range(RETRIES):
+        while True:
+            try:
+                imap.login()
+                logging.warning('Server\t\t: %s@%s', args.user, args.server)
+                logging.warning('Read Only\t: %s', args.read_only)
+                logging.warning('Detach\t\t: %s', args.detach)
+                logging.warning('Cache Enabled\t: %s', not args.reset_cache)
+                logging.warning('Download\t: %s', not args.skip_download)
+                logging.warning('Min Size\t: %s KB', args.min_size)
+                logging.warning('Target\t\t: %s', args.target)
+                logging.warning('Upload\t\t: %s', args.upload)
+                logging.warning('All Folders\t: %s', args.all)
+                logging.warning('Cache\t\t: %s', imap.cache_file)
 
-        if args.upload:
-            imap.process_directory()
-        else:
-            imap.process_folders()
-    except KeyboardInterrupt as error:
-        raise SystemExit('\nCancelling...') from error
-    finally:
-        imap.cleanup()
-        imap.logout()
+                if args.upload:
+                    imap.process_directory()
+                else:
+                    imap.process_folders()
+            except (TimeoutError, ConnectionResetError) as error:
+                print("Retrying after error: ", error)
+                continue
+            except KeyboardInterrupt as error:
+                raise SystemExit('\nCancelling...') from error
+            finally:
+                imap.cleanup()
+                imap.logout()
+            break
 
 
 if __name__ == '__main__':

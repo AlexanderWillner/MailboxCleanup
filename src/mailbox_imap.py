@@ -25,7 +25,7 @@ import pickle
 from src.mailbox_message import MailboxCleanerMessage
 
 imaplib._MAXLINE = 10000000  # pylint: disable=protected-access
-
+TCP_KEEPALIVE = 0x10
 
 __author__ = "Alexander Willner"
 __copyright__ = "Copyright 2020, Alexander Willner"
@@ -62,6 +62,7 @@ class MailboxCleanerIMAP():
             self.args.target, '_cache-' + args.server + '.pkl')
         self.imap: imaplib.IMAP4_SSL = imap
         self.stopped: bool = False
+        self.uploaded: int = 0
 
     def cleanup(self):
         """Cleanup after error."""
@@ -75,8 +76,12 @@ class MailboxCleanerIMAP():
             if self.imap is None:
                 self.imap = imaplib.IMAP4_SSL(self.args.server)
             self.imap.login(self.args.user, self.args.password)
-            self.imap.socket().setsockopt(socket.IPPROTO_TCP,
-                                          socket.TCP_NODELAY, 1)
+
+            self.imap.sock.setsockopt(
+                socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+            self.imap.sock.setsockopt(
+                socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
+            self.imap.sock.setsockopt(socket.IPPROTO_TCP, TCP_KEEPALIVE, 3)
             self._load_cache()
         except socket.gaierror as error:
             raise SystemExit('Login failed (wrong server?): %s' %
@@ -88,15 +93,17 @@ class MailboxCleanerIMAP():
     def logout(self):
         """Log out of the IMAP server."""
 
+        self._save_cache()
+
         try:
+            logging.warning('Connection\t: Closing...')
             self.imap.close()
-            logging.warning('Connection\t: Closed')
         except (AttributeError, imaplib.IMAP4.error):
             pass
 
         try:
+            logging.warning('Connection\t: Logging out...')
             self.imap.logout()
-            logging.warning('Connection\t: Logged Out')
         except (AttributeError, imaplib.IMAP4.error):
             pass
 
@@ -108,15 +115,17 @@ class MailboxCleanerIMAP():
         msg_uid = self.message.get_uid(msg)
         for _attempt in range(2):  # don't select folder in every single check
             try:
+                logging.warning('    Searching\t: %s', msg_uid)
                 status, data = self.imap.uid(
                     'SEARCH', None,
                     '(UNDELETED HEADER Message-ID "%s")' % msg_uid)
                 if data is not None and\
                         len(data[0]) > 0 and\
                         self.args.upload is not None:
-                    logging.warning('    Duplicate\t: %s', status)
+                    logging.warning('    Duplicate\t: Yes')
                     self.cache[msg_uid] = self.message.get_subject(msg_uid)
                     return True
+                logging.warning('    Duplicate\t: No')
             except imaplib.IMAP4.error as error:
                 status, error = self.imap.select(
                     self.args.folder, readonly=self.args.read_only)
@@ -198,6 +207,7 @@ class MailboxCleanerIMAP():
                 if modified:
                     self.replace_msg(msg, msg_flags, msg_uid, folder)
 
+                # Save the cache
                 self.cache[msg_uid] = subject
                 if j % 10 == 0:
                     self._save_cache()
@@ -256,12 +266,13 @@ class MailboxCleanerIMAP():
         # Check cache
         msg_uid = self.message.get_uid(msg)
         if msg_uid in self.cache:
-            logging.warning('    Cache\t: OK')
+            logging.warning('    Uploading\t: skipped (cached)')
             return ('Cached', '')
 
         # Check for duplicates
         if self.does_msg_exist(msg) is True:
             self.cache[msg_uid] = msg_subject
+            logging.warning('    Uploading\t: skipped (duplicate)')
             return ('Duplicate', '')
 
         logging.debug('    Uploading\t: %s / %s', msg_date, msg_flags)
@@ -270,14 +281,23 @@ class MailboxCleanerIMAP():
             status, data = self.imap.append(
                 folder, msg_flags, msg_date, msg.as_string().encode())
             if status == "OK":
-                logging.warning('    Success\t: %s', status)
+                logging.warning('    Result\t: %s', status)
                 self.cache[msg_uid] = msg_subject
             else:
-                logging.warning('    Error\t: %s, %s (in %s)',
+                logging.warning('    Result\t: %s, %s (in %s)',
                                 status, data, folder)
         except imaplib.IMAP4.abort as error:
             status = "Error"
             data = error
+            self.logout()
+            self.login()
+
+        # Reconnect after uploading a couple of files
+        # (avoiding TimeoutError after a while)
+        self.uploaded += 1
+        if self.uploaded % 500 == 0:
+            logging.warning('    Reconnecting...')
+            self.uploaded = 0
             self.logout()
             self.login()
 
