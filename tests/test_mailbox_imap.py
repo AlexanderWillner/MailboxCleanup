@@ -16,6 +16,7 @@ class TestMailboxCleanerIMAP(TestMailboxAbstract, unittest.TestCase):
     class _ImapMockup():
         def __init__(self):
             self.store = []
+            self.sock = self.socket()
             test_input = 'tests/input/test.eml'
             with open(test_input) as filepointer:
                 self.msg = email.message_from_file(filepointer)
