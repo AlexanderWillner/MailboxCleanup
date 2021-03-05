@@ -24,7 +24,7 @@ class TestMailboxCleanerIMAP(TestMailboxAbstract, unittest.TestCase):
         @staticmethod
         def socket():
             """Mocking socket."""
-            return type("_", (__class__, object),
+            return type("_", (TestMailboxCleanerIMAP.__class__, object),
                         {"setsockopt": lambda _a, _b, _c: None})
 
         @staticmethod

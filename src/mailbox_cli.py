@@ -11,6 +11,8 @@ from __future__ import print_function
 import argparse
 import logging
 import os
+import time
+
 
 from src.mailbox_imap import MailboxCleanerIMAP
 
@@ -77,8 +79,9 @@ def handle_arguments() -> argparse.ArgumentParser:
 
     args = parser.parse_args()
 
-    logging.basicConfig(level=logging.WARNING - args.verbosity * 10,
-                        format="%(message)s")
+    logging.basicConfig(
+        level=logging.WARNING - args.verbosity * 10,
+        format="%(message)s")
 
     return args
 
@@ -112,15 +115,18 @@ def main():
                     imap.process_directory()
                 else:
                     imap.process_folders()
-            except (TimeoutError, ConnectionResetError) as error:
+            except (TimeoutError, ConnectionResetError, BrokenPipeError)\
+                    as error:
                 print("Retrying after error: ", error)
+                time.sleep(30)
                 continue
             except KeyboardInterrupt as error:
                 raise SystemExit('\nCancelling...') from error
             finally:
                 imap.cleanup()
                 imap.logout()
-            break
+            print("Done.")
+            return
 
 
 if __name__ == '__main__':

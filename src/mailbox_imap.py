@@ -127,6 +127,8 @@ class MailboxCleanerIMAP():
                     return True
                 logging.warning('    Duplicate\t: No')
             except imaplib.IMAP4.error as error:
+                self.logout()
+                self.login()
                 status, error = self.imap.select(
                     self.args.folder, readonly=self.args.read_only)
                 if status != "OK":
