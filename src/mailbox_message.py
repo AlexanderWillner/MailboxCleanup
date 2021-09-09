@@ -24,8 +24,11 @@ import src.emlx2eml
 # pylint: disable=R0801
 __author__ = "Alexander Willner"
 __copyright__ = "Copyright 2020, Alexander Willner"
-__credits__ = ["github.com/guido4000",
-               "github.com/halteproblem", "github.com/jamesridgway"]
+__credits__ = [
+    "github.com/guido4000",
+    "github.com/halteproblem",
+    "github.com/jamesridgway",
+]
 __license__ = "MIT"
 __version__ = "1.0.4"
 __maintainer__ = "Alexander Willner"
@@ -33,7 +36,7 @@ __email__ = "alex@willner.ws"
 __status__ = "Development"
 
 
-class MailboxCleanerMessage():
+class MailboxCleanerMessage:
     """
     Class to represent an e-mail.
     """
@@ -62,12 +65,12 @@ Tool: https://mailboxcleanup.netcee.de
             if self.is_non_detachable_part(part):
                 continue
             # Only download in relevant mode
-            date = time.mktime(email.utils.parsedate(msg.get('date')))
+            date = time.mktime(email.utils.parsedate(msg.get("date")))
             target = self.download_attachment(part, date)
             if target is not None:
                 # Only detach in relevant mode
                 if not self.args.detach:
-                    logging.debug('      Detaching\t: skipped (disabled)')
+                    logging.debug("      Detaching\t: skipped (disabled)")
                     continue
                 self.detach_attachment(part, target)
                 modified = True
@@ -78,17 +81,22 @@ Tool: https://mailboxcleanup.netcee.de
         """Only process certain types and sizes of attachments."""
         # issue: next line might throw a LookupError
         # example:
-        #  File ".../3.9/lib/python3.9/email/message.py", line 315, in set_payload
+        #  File ".../lib/python3.9/email/message.py", line 315, in set_payload
         # LookupError: unknown encoding: windows-1251
         msg_size = len(str(part)) / 1024
-        logging.debug('    Part\t: %d KB / %d KB (type: %s)',
-                      msg_size, self.args.min_size,
-                      part.get_content_maintype())
+        logging.debug(
+            "    Part\t: %d KB / %d KB (type: %s)",
+            msg_size,
+            self.args.min_size,
+            part.get_content_maintype(),
+        )
 
-        non_detachable = part.get_content_maintype() == 'multipart' or \
-            part.get('Content-Disposition') is None or \
-            msg_size <= self.args.min_size
-        logging.debug('    Non-Det.\t: %s', non_detachable)
+        non_detachable = (
+            part.get_content_maintype() == "multipart"
+            or part.get("Content-Disposition") is None
+            or msg_size <= self.args.min_size
+        )
+        logging.debug("    Non-Det.\t: %s", non_detachable)
 
         return non_detachable
 
@@ -96,21 +104,25 @@ Tool: https://mailboxcleanup.netcee.de
         """Download the attachment from a part of an email."""
 
         if self.args.skip_download:
-            logging.info('      Downl.\t: skipped (disabled)')
+            logging.info("      Downl.\t: skipped (disabled)")
             return ""
 
         file_attached = self.convert_filename(part.get_filename())
 
         if file_attached == "unknown":
-            logging.warning('Warning\t: Unknown attachment '
-                            '(skipping this attachment)')
+            logging.warning(
+                "Warning\t: Unknown attachment " "(skipping this attachment)"
+            )
             return None
 
         if not os.path.exists(self.args.target):
             os.mkdir(self.args.target)
         with tempfile.NamedTemporaryFile() as file_temp:
-            logging.info('      Downl.\t: "%s" (%s)',
-                         file_attached, part.get_content_maintype())
+            logging.info(
+                '      Downl.\t: "%s" (%s)',
+                file_attached, part.get_content_maintype(
+                )
+            )
             logging.debug('      Downl.\t: To "%s"', file_temp.name)
             payload = part.get_payload(decode=True)
             if payload is None:
@@ -140,11 +152,12 @@ Tool: https://mailboxcleanup.netcee.de
             if source_hash != target_hash:
                 if iterator == 0:
                     logging.debug(
-                        '      Conflict\t: Resolving same file / other hash..')
-                target = self._copy_file(source, target_name, date,
-                                         iterator + 1)
+                        "      Conflict\t: Resolving same file / other hash.."
+                    )
+                target = self._copy_file(
+                    source, target_name, date, iterator + 1)
             else:
-                logging.debug('      Moving\t: Already exists (same hash)')
+                logging.debug("      Moving\t: Already exists (same hash)")
 
         return target
 
@@ -169,15 +182,17 @@ Tool: https://mailboxcleanup.netcee.de
                 self.process_directory(handler, filename, cache)
 
             # Only take eml files into account
-            if not filename.lower().endswith(".eml") and\
-               not filename.lower().endswith(".emlx"):
+            if not filename.lower().endswith(".eml") and \
+               not filename.lower().endswith(
+                ".emlx"
+            ):
                 continue
 
-            logging.warning('Files\t\t: %d / %d', i, len(filenames))
+            logging.warning("Files\t\t: %d / %d", i, len(filenames))
 
-            with open(filename,
-                      encoding="utf8",
-                      errors="surrogateescape") as filepointer:
+            with open(
+                filename, encoding="utf8", errors="surrogateescape"
+            ) as filepointer:
                 # Specific handling of emlx files
                 if filename.lower().endswith(".emlx"):
                     msg = src.emlx2eml.parse_emlx(filename)
@@ -187,13 +202,14 @@ Tool: https://mailboxcleanup.netcee.de
                 # Logging
                 msg_subject = self.get_subject(msg)
                 msg_uid = self.get_uid(msg)
-                logging.warning('    File\t: %s (%s: %s)',
-                                filename, msg_uid, msg_subject)
+                logging.warning(
+                    "    File\t: %s (%s: %s)", filename, msg_uid, msg_subject
+                )
                 if cache is not None and msg_uid in cache:
-                    logging.warning('    Cache\t: OK')
+                    logging.warning("    Cache\t: OK")
                     continue
 
-                logging.warning('    Cache\t: MISS')
+                logging.warning("    Cache\t: MISS")
 
                 try:
                     # Remove attachments
@@ -202,7 +218,7 @@ Tool: https://mailboxcleanup.netcee.de
                     # Post process message (e.g. upload or save it)
                     handler(msg, self.args.folder)
                 except (KeyError, UnicodeEncodeError) as error:
-                    logging.debug('      Error\t: %s (in %s)', error, filename)
+                    logging.debug("      Error\t: %s (in %s)", error, filename)
 
     @staticmethod
     def detach_attachment(msg, target):
@@ -215,42 +231,47 @@ Tool: https://mailboxcleanup.netcee.de
         msg_size = len(str(msg)) / 1024
         msg_type = msg.get_content_disposition()
 
-        logging.debug('      Detaching\t: %s (saved as %s)',
+        logging.debug("      Detaching\t: %s (saved as %s)",
                       msg_filename, target)
 
         # Remove some old headers
-        del msg['Content-Transfer-Encoding']
-        del msg['Content-Disposition']
-        del msg['Content-Description']
+        del msg["Content-Transfer-Encoding"]
+        del msg["Content-Disposition"]
+        del msg["Content-Description"]
         for k, _v in msg.get_params()[1:]:
             msg.del_param(k)
 
         # Make sure different clients visualize the removed content properly
-        msg.set_type('text/plain')
-        msg.set_charset('utf-8')
-        if msg_type == 'attachment':
-            msg.add_header('Content-Disposition', 'inline')
+        msg.set_type("text/plain")
+        msg.set_charset("utf-8")
+        if msg_type == "attachment":
+            msg.add_header("Content-Disposition", "inline")
         else:
-            msg.add_header('Content-Disposition', 'attachment',
-                           filename='removed-%s.txt' % msg_filename)
-            msg.add_header('Content-Description',
-                           'removed-%s.txt' % msg_filename)
+            msg.add_header(
+                "Content-Disposition",
+                "attachment",
+                filename="removed-%s.txt" % msg_filename,
+            )
+            msg.add_header("Content-Description",
+                           "removed-%s.txt" % msg_filename)
 
         # Replace content
-        msg_details = dict(newfile=os.path.basename(target),
-                           type=msg_content,
-                           filename=msg_filename,
-                           size=msg_size)
+        msg_details = dict(
+            newfile=os.path.basename(target),
+            type=msg_content,
+            filename=msg_filename,
+            size=msg_size,
+        )
         msg_placeholder = MailboxCleanerMessage._PLACEHOLDER % msg_details
-        msg_placeholder = email.mime.text.MIMEText(msg_placeholder,
-                                                   'text', 'utf-8')
+        msg_placeholder = email.mime.text.MIMEText(
+            msg_placeholder, "text", "utf-8")
         msg.set_payload(msg_placeholder.get_payload())
 
     @staticmethod
     def get_uid(message) -> str:
         """Get UID of message."""
 
-        uid = MailboxCleanerMessage.get_header(message, 'message-id')
+        uid = MailboxCleanerMessage.get_header(message, "message-id")
         uid = email.utils.parseaddr(uid)[1]
 
         return uid
@@ -264,14 +285,19 @@ Tool: https://mailboxcleanup.netcee.de
         else:
             item = ""
         item, encoding = email.header.decode_header(item)[0]
-        encoding = 'utf-8' if encoding is None else encoding
+        encoding = "utf-8" if encoding is None else encoding
         try:
-            item = item.decode(encoding, errors='replace')\
-                if hasattr(item, 'decode') else item
+            item = (
+                item.decode(encoding, errors="replace")
+                if hasattr(item, "decode")
+                else item
+            )
         except LookupError as error:
-            logging.debug('      Error\t: decoding (%s) with (%s): %s',
-                          item, encoding, error)
-            item = item.decode('ascii', 'replace')
+            logging.debug(
+                "      Error\t: decoding (%s) with (%s): %s",
+                item, encoding, error
+            )
+            item = item.decode("ascii", "replace")
 
         return item
 
@@ -279,10 +305,10 @@ Tool: https://mailboxcleanup.netcee.de
     def get_subject(message) -> str:
         """Get shortened message subject for visualization."""
 
-        subject = MailboxCleanerMessage.get_header(message, 'subject')
-        subject = subject[:75] + (subject[75:] and '...')
-        subject = subject.replace('\r\n', '')
-        subject = subject.replace('\t', ' ')
+        subject = MailboxCleanerMessage.get_header(message, "subject")
+        subject = subject[:75] + (subject[75:] and "...")
+        subject = subject.replace("\r\n", "")
+        subject = subject.replace("\t", " ")
 
         return subject
 
@@ -301,15 +327,15 @@ Tool: https://mailboxcleanup.netcee.de
         """Make sure attachments contain only valid characters."""
 
         value = str(value)
-        value = unicodedata.normalize('NFKC', value)
-        value = re.sub(r'[^.\w\s-]', '_', value)
+        value = unicodedata.normalize("NFKC", value)
+        value = re.sub(r"[^.\w\s-]", "_", value)
         return value
 
     @staticmethod
     def convert_filename(file_struct) -> str:
         """Decode the name of some attachments."""
 
-        filename = 'unknown'
+        filename = "unknown"
         if file_struct is not None:
             file_struct = email.header.decode_header(file_struct)[0]
             encoding = file_struct[1]
