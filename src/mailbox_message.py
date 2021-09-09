@@ -76,6 +76,10 @@ Tool: https://mailboxcleanup.netcee.de
 
     def is_non_detachable_part(self, part):
         """Only process certain types and sizes of attachments."""
+        # issue: next line might throw a LookupError
+        # example:
+        #  File ".../3.9/lib/python3.9/email/message.py", line 315, in set_payload
+        # LookupError: unknown encoding: windows-1251
         msg_size = len(str(part)) / 1024
         logging.debug('    Part\t: %d KB / %d KB (type: %s)',
                       msg_size, self.args.min_size,
