@@ -53,6 +53,9 @@ def handle_arguments() -> argparse.ArgumentParser:
     parser.add_argument("-m", "--min-size",
                         help="min attachment size in KB",
                         default=2000, type=int)
+    parser.add_argument("-O", "--older",
+                        help="only process messages older than this number of days",
+                        type=int)
     parser.add_argument("-f", "--folder",
                         help="imap folder to process", default="Inbox")
     parser.add_argument("-l", "--upload",
@@ -106,6 +109,8 @@ def main():
                 logging.warning('Cache Enabled\t: %s', not args.reset_cache)
                 logging.warning('Download\t: %s', not args.skip_download)
                 logging.warning('Min Size\t: %s KB', args.min_size)
+                if args.older:
+                    logging.warning('Older Than\t: %s days', args.older)
                 logging.warning('Target\t\t: %s', args.target)
                 logging.warning('Upload\t\t: %s', args.upload)
                 logging.warning('All Folders\t: %s', args.all)
