@@ -21,11 +21,11 @@ import typing
 import collections
 import os.path
 import pickle
+import keepalive
 
 from src.mailbox_message import MailboxCleanerMessage
 
 imaplib._MAXLINE = 10000000  # pylint: disable=protected-access
-TCP_KEEPALIVE = 0x10
 
 __author__ = "Alexander Willner"
 __copyright__ = "Copyright 2020, Alexander Willner"
@@ -79,9 +79,7 @@ class MailboxCleanerIMAP():
 
             self.imap.sock.setsockopt(
                 socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
-            self.imap.sock.setsockopt(
-                socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
-            self.imap.sock.setsockopt(socket.IPPROTO_TCP, TCP_KEEPALIVE, 3)
+            keepalive.set(self.imap.sock)
             self._load_cache()
         except socket.gaierror as error:
             raise SystemExit('Login failed (wrong server?): %s' %
