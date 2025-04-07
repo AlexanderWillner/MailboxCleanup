@@ -243,6 +243,7 @@ Tool: https://mailboxcleanup.netcee.de
 
         # Make sure different clients visualize the removed content properly
         msg.set_type("text/plain")
+        msg.set_payload("")
         msg.set_charset("utf-8")
         if msg_type == "attachment":
             msg.add_header("Content-Disposition", "inline")
@@ -337,12 +338,15 @@ Tool: https://mailboxcleanup.netcee.de
 
         filename = "unknown"
         if file_struct is not None:
-            file_struct = email.header.decode_header(file_struct)[0]
-            encoding = file_struct[1]
-            if encoding is not None:
-                filename = file_struct[0].decode(encoding)
-            else:
-                filename = file_struct[0]
-        filename = filename.replace("\r", "").replace("\n", "")
+            filename = ""
+            file_decode = email.header.decode_header(file_struct)
+            for file_part in file_decode:
+                if file_part[1] is not None:
+                    filename += file_part[0].decode(file_part[1])
+                elif isinstance(file_part[0], str):
+                    filename += file_part[0]
+                else:
+                    filename += file_part[0].decode('utf8')
+        filename = filename.replace("\r", " ").replace("\n", " ")
 
         return MailboxCleanerMessage.slugify_filename(filename)
