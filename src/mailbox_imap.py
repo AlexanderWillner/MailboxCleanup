@@ -21,6 +21,7 @@ import typing
 import collections
 import os.path
 import pickle
+from datetime import date, timedelta
 
 from src.mailbox_message import MailboxCleanerMessage
 
@@ -343,7 +344,10 @@ class MailboxCleanerIMAP():
         self.imap.select(folder, readonly=self.args.read_only)
 
         # Extract email UIDs
-        result_mails, data_mails = self.imap.uid('search', None, "ALL")
+        query = 'ALL'
+        if self.args.older:
+            query = f'BEFORE {date.today() - timedelta(days=self.args.older):%d-%b-%Y}'
+        result_mails, data_mails = self.imap.uid('search', None, query)
         msg_uids = data_mails[0].split()
         logging.warning('Mails (#)\t: %s (%s)',
                         result_mails, len(msg_uids))
